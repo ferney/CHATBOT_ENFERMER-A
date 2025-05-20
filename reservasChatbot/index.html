@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot de Reservas de Laboratorios</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Chatbot de Reservas de Laboratorios</h1>
+        <div id="chatWindow" class="chat-window"></div>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Escribe tu mensaje aquí..." />
+            <button id="sendButton">Enviar</button>
+        </div>
+        <div class="suggestions">
+            <button class="suggestion-btn" data-query="Consultar disponibilidad">Consultar disponibilidad</button>
+            <button class="suggestion-btn" data-query="Reservar laboratorio">Reservar laboratorio</button>
+           <!-- <button class="suggestion-btn" data-query="Cancelar reserva">Cancelar reserva</button> -->
+        </div>
+       <!-- <div id="labSelection" class="lab-selection" style="display: none; margin-top: 10px;">
+            <label for="labDropdown">Selecciona un laboratorio:</label>
+            <select id="labDropdown">
+                <option value="infectología">Infectología</option>
+                <option value="pediatría">Pediatría</option>
+                <option value="cardiología">Cardiología</option>
+                <option value="cirugía">Cirugía</option>
+                <option value="emergencias">Emergencias</option>
+                <option value="obstetricia">Obstetricia</option>
+                <option value="neonatología">Neonatología</option>
+                <option value="quirófano">Quirófano</option>
+                <option value="terapia intensiva">Terapia Intensiva</option>
+                <option value="general">General</option>
+            </select>
+            <button id="checkAvailabilityButton">Ver horarios disponibles</button>
+        </div>-->
+    </div>
+    <script src="chatbot.js"></script>
+</body>
+</html>

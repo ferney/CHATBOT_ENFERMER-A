@@ -1,0 +1,215 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #333;
+}
+
+.container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 500px;
+    max-width: 90%;
+    margin: 20px auto;
+    border: 1px solid #e0e0e0;
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.chat-window {
+    height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.message {
+    margin: 10px 0;
+    padding: 10px 15px;
+    border-radius: 8px;
+    max-width: 70%;
+    word-wrap: break-word;
+}
+
+.user-message {
+    text-align: right;
+    color: #fff;
+    background-color: #007bff;
+    margin-left: 30%;
+}
+
+.bot-message {
+    text-align: left;
+    color: #2c3e50;
+    background-color: #e9ecef;
+    margin-right: 30%;
+}
+
+.input-area {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+input[type="text"] {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+button {
+    padding: 12px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+.suggestions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.suggestion-btn {
+    background-color: #28a745;
+    padding: 10px 15px;
+    font-size: 14px;
+}
+
+.suggestion-btn:hover {
+    background-color: #218838;
+}
+
+.lab-selection {
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.lab-selection label {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.lab-selection select {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.lab-selection select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.lab-selection button {
+    background-color: #17a2b8;
+    padding: 10px 15px;
+}
+
+.lab-selection button:hover {
+    background-color: #138496;
+}
+
+/* Responsividad */
+@media (max-width: 480px) {
+    .container {
+        width: 95%;
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    .chat-window {
+        height: 300px;
+    }
+
+    .input-area {
+        flex-direction: column;
+    }
+
+    input[type="text"] {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    button {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .suggestions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .suggestion-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .lab-selection {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .lab-selection select {
+        width: 100%;
+        padding: 8px;
+    }
+
+    .lab-selection button {
+        width: 100%;
+    }
+}
+
+
+
+

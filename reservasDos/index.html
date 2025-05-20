@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Reservas de Laboratorios</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Gestión de Reservas de Laboratorios</h1>
+        <div id="messageArea" class="message-area"></div>
+        <div id="reservationList" class="reservation-list">
+            <h2>Lista de Reservas</h2>
+            <table id="reservationsTable">
+                <thead>
+                    <tr>
+                        <th>Laboratorio</th>
+                        <th>Fecha</th>
+                        <th>Hora Inicio</th>
+                        <th>Hora Fin</th>
+                        <th>Usuario</th>
+                        <th>Docente</th>
+                        <th>Práctica</th>
+                        <th>Materiales</th>
+                        <th>Estudiantes</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="reservationsBody"></tbody>
+            </table>
+            <button id="refreshButton">Actualizar Lista</button>
+        </div>
+        <div id="updateForm" class="update-form" style="display: none;">
+            <h2>Actualizar Reserva</h2>
+            <input type="hidden" id="updateId" value="">
+            <label for="updateLab">Laboratorio:</label>
+            <select id="updateLab">
+                <option value="infectología">Infectología</option>
+                <option value="pediatría">Pediatría</option>
+                <option value="cardiología">Cardiología</option>
+                <option value="cirugía">Cirugía</option>
+                <option value="emergencias">Emergencias</option>
+                <option value="obstetricia">Obstetricia</option>
+                <option value="neonatología">Neonatología</option>
+                <option value="quirófano">Quirófano</option>
+                <option value="terapia intensiva">Terapia Intensiva</option>
+                <option value="general">General</option>
+            </select><br><br>
+            <label for="updateDate">Fecha (YYYY-MM-DD):</label>
+            <input type="date" id="updateDate" required><br><br>
+            <label for="updateStart">Hora Inicio (HH:MM):</label>
+            <input type="time" id="updateStart" required><br><br>
+            <label for="updateEnd">Hora Fin (HH:MM):</label>
+            <input type="time" id="updateEnd" required><br><br>
+            <label for="updateTeacher">Docente:</label>
+            <input type="text" id="updateTeacher" required><br><br>
+            <label for="updatePractice">Práctica:</label>
+            <input type="text" id="updatePractice" required><br><br>
+            <label for="updateMaterials">Materiales:</label>
+            <input type="text" id="updateMaterials" required><br><br>
+            <label for="updateStudents">Estudiantes:</label>
+            <input type="number" id="updateStudents" min="1" required><br><br>
+            <button id="updateButton">Actualizar Reserva</button>
+            <button id="cancelUpdate">Cancelar</button>
+        </div>
+    </div>
+    <script src="chatbot.js"></script>
+</body>
+</html>
