@@ -30,6 +30,8 @@ h1 {
 }
 
 .chat-window {
+    display: flex;
+    flex-direction: column;
     height: 400px;
     overflow-y: auto;
     border: 1px solid #ddd;
@@ -46,13 +48,14 @@ h1 {
     border-radius: 8px;
     max-width: 70%;
     word-wrap: break-word;
+    width: fit-content;
 }
 
 .user-message {
-    text-align: right;
+    text-align: left;
     color: #fff;
     background-color: #007bff;
-    margin-left: 30%;
+    margin: 0 0 0 auto;
 }
 
 .bot-message {
@@ -75,7 +78,7 @@ input[type="text"] {
     border-radius: 6px;
     font-size: 16px;
     outline: none;
-    transition: border-color 0.3s;
+    transition: all 0.3s ease;
 }
 
 input[type="text"]:focus {
@@ -91,7 +94,7 @@ button {
     border-radius: 6px;
     cursor: pointer;
     font-size: 16px;
-    transition: background-color 0.3s, transform 0.1s;
+    transition: all 0.3s ease;
 }
 
 button:hover {
@@ -208,6 +211,178 @@ button:active {
     .lab-selection button {
         width: 100%;
     }
+}
+
+/* Estilos para el popup de reserva */
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup.active {
+    display: flex;
+}
+
+.popup__content {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    width: 90%;
+    max-width: 400px;
+}
+
+.popup__title {
+    color: #2c3e50;
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.popup__description {
+    color: #666;
+    margin-bottom: 1.25rem;
+    line-height: 1.4;
+    font-size: 0.95rem;
+}
+
+.popup__form {
+    margin-bottom: 1.25rem;
+    display: grid;
+    gap: 1rem;
+}
+
+/* Estilos para los grupos de formulario*/
+.form-group {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.form-group__label {
+    color: #2c3e50;
+    font-weight: 500;
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.form-group__input,
+.form-group__select {
+    /* width: 100%; */
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    background-color: #f8f9fa;
+}
+
+.form-group__input:focus,
+.form-group__select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    background-color: white;
+}
+
+.form-group__select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1em;
+    padding-right: 2.5rem;
+}
+
+.popup__buttons {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+}
+
+.popup__button {
+    padding: 0.6rem 1.25rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.popup__button--primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.popup__button--primary:hover {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+}
+
+.popup__button--secondary {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.popup__button--secondary:hover {
+    background-color: #c0392b;
+    transform: translateY(-1px);
+}
+
+/* Responsive styles para el popup */
+@media (max-width: 480px) {
+    .popup__content {
+        padding: 1.25rem;
+        width: 95%;
+    }
+
+    .form-group {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .form-group__label {
+        margin-bottom: 0.25rem;
+    }
+
+    .popup__buttons {
+        flex-direction: column;
+    }
+
+    .popup__button {
+        width: 100%;
+    }
+}
+
+/* Estilos para elementos deshabilitados */
+.input--disabled {
+    background-color: #f5f5f5 !important;
+    cursor: not-allowed !important;
+    opacity: 0.7;
+}
+
+.button--disabled {
+    background-color: #cccccc !important;
+    cursor: not-allowed !important;
+    opacity: 0.7;
+    transform: none !important;
+}
+
+.button--disabled:hover {
+    background-color: #cccccc !important;
+    transform: none !important;
 }
 
 
