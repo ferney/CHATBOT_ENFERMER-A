@@ -60,10 +60,15 @@ function initAvailabilityPopupEvents() {
     cancelAvailabilityBtn.addEventListener("click", closeAvailabilityPopup);
 }
 
+// Función para ajustar la fecha a la zona horaria de Colombia
+function adjustToColombiaTime(date) {
+    return new Date(date.getTime() + (date.getTimezoneOffset() * 60000));
+}
+
 // Mostrar el popup de reserva
 function showReservationPopup() {
-    // Establecer la fecha mínima como la fecha actual
-    const today = new Date();
+    // Establecer la fecha mínima como la fecha actual en Colombia
+    const today = adjustToColombiaTime(new Date());
     const minDate = today.toISOString().split('T')[0];
     reservationDate.min = minDate;
     
@@ -73,8 +78,8 @@ function showReservationPopup() {
 
 // Mostrar el popup de disponibilidad
 function showAvailabilityPopup() {
-    // Establecer la fecha mínima como la fecha actual
-    const today = new Date();
+    // Establecer la fecha mínima como la fecha actual en Colombia
+    const today = adjustToColombiaTime(new Date());
     const minDate = today.toISOString().split('T')[0];
     availabilityDate.min = minDate;
     
@@ -157,7 +162,7 @@ function handleStartReservation() {
     }
 
     // Formatear la fecha para el mensaje
-    const dateObj = new Date(date);
+    const dateObj = adjustToColombiaTime(new Date(date));
     const day = dateObj.getDate();
     const month = dateObj.toLocaleString('es-ES', { month: 'long' });
     const year = dateObj.getFullYear();
@@ -193,7 +198,7 @@ function handleCheckAvailability() {
     }
 
     // Formatear la fecha para el mensaje
-    const dateObj = new Date(date);
+    const dateObj = adjustToColombiaTime(new Date(date));
     const day = dateObj.getDate();
     const month = dateObj.toLocaleString('es-ES', { month: 'long' });
     const year = dateObj.getFullYear();
@@ -276,6 +281,36 @@ function isNonWorkingDay(dateObj, dateStr) {
   return isWeekend || isHoliday;
 }
 
+// Función para obtener la fecha actual en Colombia
+function getCurrentDate() {
+    return adjustToColombiaTime(new Date());
+}
+
+// Función para formatear la fecha actual en español
+function getFormattedCurrentDate() {
+    const today = getCurrentDate();
+    const day = today.getDate();
+    const month = today.toLocaleString('es-ES', { month: 'long' });
+    const year = today.getFullYear();
+    return `${day} de ${month} de ${year}`;
+}
+
+// Validate if the date is in the past
+function isDateInPast(dateObj) {
+    const today = getCurrentDate();
+    const reservationDate = new Date(dateObj);
+    
+    // Si es el mismo día, comparar las horas
+    if (reservationDate.toDateString() === today.toDateString()) {
+        const currentHour = today.getHours();
+        const reservationHour = parseInt(reservationDate.getHours());
+        return reservationHour <= currentHour;
+    }
+    
+    // Si es otro día, comparar las fechas
+    return reservationDate.setHours(0,0,0,0) < today.setHours(0,0,0,0);
+}
+
 // Handle cancellation query
 async function handleCancelQuery(message) {
   const { lab, date, startTime, endTime, dateObj } = extractDetails(message);
@@ -291,7 +326,7 @@ async function handleCancelQuery(message) {
 
   if (dateObj && isDateInPast(dateObj)) {
     addMessage(
-      `No puedes cancelar reservas pasadas. La fecha ${date} es anterior a hoy (15 de mayo de 2025).`,
+      `No puedes cancelar reservas pasadas. La fecha ${date} es anterior a hoy (${getFormattedCurrentDate()}).`,
       "bot-message"
     );
     return;
@@ -374,11 +409,6 @@ function extractDetails(message) {
   return { lab, date, startTime, endTime, dateObj };
 }
 
-// Validate if the date is in the past
-function isDateInPast(dateObj) {
-  return dateObj < CURRENT_DATE;
-}
-
 // Handle availability query
 async function handleAvailabilityQuery(message) {
   const { lab, date, startTime, endTime, dateObj } = extractDetails(message);
@@ -393,7 +423,7 @@ async function handleAvailabilityQuery(message) {
 
   if (dateObj && isDateInPast(dateObj)) {
     addMessage(
-      `No puedes consultar fechas pasadas. La fecha ${date} es anterior a hoy (15 de mayo de 2025).`,
+      `No puedes consultar fechas pasadas. La fecha ${date} es anterior a hoy (${getFormattedCurrentDate()}).`,
       "bot-message"
     );
     return;
@@ -447,7 +477,7 @@ function initiateReservation(message) {
 
   if (dateObj && isDateInPast(dateObj)) {
     addMessage(
-      `No puedes reservar fechas pasadas. La fecha ${date} es anterior a hoy (15 de mayo de 2025).`,
+      `No puedes reservar fechas pasadas. La fecha ${date} es anterior a hoy (${getFormattedCurrentDate()}).`,
       "bot-message"
     );
     return;
