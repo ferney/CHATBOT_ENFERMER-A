@@ -32,23 +32,189 @@ let reservationState = {
   num_students: null
 };
 
-// inicializar eventos
-function initChatbot() {
-  sendButton.addEventListener("click", handleUserInput);
-  userInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") handleUserInput();
-  });
-  suggestionButtons.forEach(button => {
-    button.addEventListener("click", handleSuggestionClick);
-  });
+// Elementos del DOM para el popup
+const reservationPopup = document.getElementById("reservationPopup");
+const reservationDate = document.getElementById("reservationDate");
+const reservationTime = document.getElementById("reservationTime");
+const reservationLab = document.getElementById("reservationLab");
+const startReservationBtn = document.getElementById("startReservationBtn");
+const cancelReservationBtn = document.getElementById("cancelReservationBtn");
+
+// Elementos del DOM para el popup de disponibilidad
+const availabilityPopup = document.getElementById("availabilityPopup");
+const availabilityDate = document.getElementById("availabilityDate");
+const availabilityTime = document.getElementById("availabilityTime");
+const availabilityLab = document.getElementById("availabilityLab");
+const checkAvailabilityBtn = document.getElementById("checkAvailabilityBtn");
+const cancelAvailabilityBtn = document.getElementById("cancelAvailabilityBtn");
+
+// Inicializar eventos del popup
+function initPopupEvents() {
+    startReservationBtn.addEventListener("click", handleStartReservation);
+    cancelReservationBtn.addEventListener("click", closeReservationPopup);
 }
 
-// Handle suggestion button click
+// Inicializar eventos del popup de disponibilidad
+function initAvailabilityPopupEvents() {
+    checkAvailabilityBtn.addEventListener("click", handleCheckAvailability);
+    cancelAvailabilityBtn.addEventListener("click", closeAvailabilityPopup);
+}
+
+// Mostrar el popup de reserva
+function showReservationPopup() {
+    // Establecer la fecha mínima como la fecha actual
+    const today = new Date();
+    const minDate = today.toISOString().split('T')[0];
+    reservationDate.min = minDate;
+    
+    // Mostrar el popup
+    reservationPopup.classList.add("active");
+}
+
+// Mostrar el popup de disponibilidad
+function showAvailabilityPopup() {
+    // Establecer la fecha mínima como la fecha actual
+    const today = new Date();
+    const minDate = today.toISOString().split('T')[0];
+    availabilityDate.min = minDate;
+    
+    // Mostrar el popup
+    availabilityPopup.classList.add("active");
+}
+
+// Cerrar el popup de reserva
+function closeReservationPopup() {
+    reservationPopup.classList.remove("active");
+    // Limpiar los campos
+    reservationDate.value = "";
+    reservationTime.selectedIndex = 0;
+    reservationLab.selectedIndex = 0;
+}
+
+// Cerrar el popup de disponibilidad
+function closeAvailabilityPopup() {
+    availabilityPopup.classList.remove("active");
+    // Limpiar los campos
+    availabilityDate.value = "";
+    availabilityTime.selectedIndex = 0;
+    availabilityLab.selectedIndex = 0;
+}
+
+// Función para bloquear/desbloquear el input
+function toggleChatInput(disabled) {
+    userInput.disabled = disabled;
+    sendButton.disabled = disabled;
+    if (disabled) {
+        userInput.classList.add('input--disabled');
+        sendButton.classList.add('button--disabled');
+    } else {
+        userInput.classList.remove('input--disabled');
+        sendButton.classList.remove('button--disabled');
+    }
+}
+
+// Modificar la función de inicialización
+function initChatbot() {
+    // Bloquear el input inicialmente
+    toggleChatInput(true);
+    
+    sendButton.addEventListener("click", handleUserInput);
+    userInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter" && !userInput.disabled) handleUserInput();
+    });
+    suggestionButtons.forEach(button => {
+        button.addEventListener("click", handleSuggestionClick);
+    });
+    initPopupEvents();
+    initAvailabilityPopupEvents();
+}
+
+// Modificar la función de manejo de sugerencias
 function handleSuggestionClick(event) {
-  const query = event.target.getAttribute("data-query");
-  addMessage(query, "user-message");
-  processUserMessage(query);
-  scrollToBottom();
+    const query = event.target.getAttribute("data-query");
+    if (query === "Reservar laboratorio") {
+        showReservationPopup();
+        toggleChatInput(false); // Desbloquear el input al iniciar el proceso
+    } else if (query === "Consultar disponibilidad") {
+        showAvailabilityPopup();
+        toggleChatInput(false); // Desbloquear el input al iniciar el proceso
+    } else {
+        addMessage(query, "user-message");
+        processUserMessage(query);
+        scrollToBottom();
+    }
+}
+
+// Modificar la función de manejo de reserva
+function handleStartReservation() {
+    const date = reservationDate.value;
+    const time = reservationTime.value;
+    const lab = reservationLab.value;
+
+    if (!date || !time || !lab) {
+        alert("Por favor, completa todos los campos.");
+        return;
+    }
+
+    // Formatear la fecha para el mensaje
+    const dateObj = new Date(date);
+    const day = dateObj.getDate();
+    const month = dateObj.toLocaleString('es-ES', { month: 'long' });
+    const year = dateObj.getFullYear();
+    const formattedDate = `${day} de ${month} de ${year}`;
+
+    // Calcular la hora de fin (2 horas después de la hora de inicio)
+    const startHour = parseInt(time.split(':')[0]);
+    const endHour = startHour + 2;
+    const formattedStartTime = `${startHour}:00`;
+    const formattedEndTime = `${endHour}:00`;
+
+    // Crear el mensaje de reserva
+    const message = `Reservar ${lab}, ${formattedDate}, ${formattedStartTime} a ${formattedEndTime}`;
+    
+    // Cerrar el popup
+    closeReservationPopup();
+    
+    // Simular el envío del mensaje
+    addMessage(message, "user-message");
+    processUserMessage(message);
+    scrollToBottom();
+}
+
+// Modificar la función de manejo de disponibilidad
+function handleCheckAvailability() {
+    const date = availabilityDate.value;
+    const time = availabilityTime.value;
+    const lab = availabilityLab.value;
+
+    if (!date || !time || !lab) {
+        alert("Por favor, completa todos los campos.");
+        return;
+    }
+
+    // Formatear la fecha para el mensaje
+    const dateObj = new Date(date);
+    const day = dateObj.getDate();
+    const month = dateObj.toLocaleString('es-ES', { month: 'long' });
+    const year = dateObj.getFullYear();
+    const formattedDate = `${day} de ${month} de ${year}`;
+
+    // Calcular la hora de fin (2 horas después de la hora de inicio)
+    const startHour = parseInt(time.split(':')[0]);
+    const endHour = startHour + 2;
+    const formattedStartTime = `${startHour}:00`;
+    const formattedEndTime = `${endHour}:00`;
+
+    // Crear el mensaje de consulta
+    const message = `Disponible ${lab}, ${formattedDate}, ${formattedStartTime} a ${formattedEndTime}`;
+    
+    // Cerrar el popup
+    closeAvailabilityPopup();
+    
+    // Simular el envío del mensaje
+    addMessage(message, "user-message");
+    processUserMessage(message);
+    scrollToBottom();
 }
 
 // Handle user input
@@ -266,12 +432,6 @@ async function handleAvailabilityQuery(message) {
     );
   }
 }
-
-
-
-
-
-
 
 // Initiate reservation process
 function initiateReservation(message) {
