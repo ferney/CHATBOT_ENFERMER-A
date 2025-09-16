@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservas de Laboratorios</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            background: white;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+            text-align: left;
+            padding: 15px;
+            position: sticky;
+            top: 0;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ecf0f1;
+            color: #2c3e50;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #e8f4fc;
+            transition: background-color 0.3s;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #7f8c8d;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #e74c3c;
+            background: #fadbd8;
+            border-radius: 8px;
+        }
+        
+        .refresh-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 30px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            th, td {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Reservas de Laboratorios</h1>
+            <p>Listado completo de reservas activas</p>
+        </div>
+        
+        <div class="table-container">
+            <table id="reservationsTable">
+                <thead>
+                    <tr id="tableHeader"></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <div id="loadingMessage" class="loading">Cargando reservas...</div>
+            <div id="errorMessage" class="error" style="display:none;"></div>
+        </div>
+        
+        <button id="refreshBtn" class="refresh-btn">Actualizar Lista</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tableHeader = document.getElementById('tableHeader');
+            const tableBody = document.getElementById('tableBody');
+            const loadingMessage = document.getElementById('loadingMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const refreshBtn = document.getElementById('refreshBtn');
+            
+            // Función para cargar datos
+            function loadReservations() {
+                // Mostrar carga y ocultar errores
+                loadingMessage.style.display = 'block';
+                errorMessage.style.display = 'none';
+                tableHeader.innerHTML = '';
+                tableBody.innerHTML = '';
+                
+                fetch('http://localhost/reservasChatbotX2/get_reservations.php')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error en la respuesta del servidor');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Ocultar mensaje de carga
+                        loadingMessage.style.display = 'none';
+                        
+                        // Crear encabezados de tabla
+                        data.columns.forEach(column => {
+                            const th = document.createElement('th');
+                            th.textContent = column;
+                            tableHeader.appendChild(th);
+                        });
+                        
+                        // Crear filas de datos
+                        if (data.data.length === 0) {
+                            const tr = document.createElement('tr');
+                            const td = document.createElement('td');
+                            td.colSpan = data.columns.length;
+                            td.textContent = 'No hay reservas registradas';
+                            td.style.textAlign = 'center';
+                            td.style.padding = '20px';
+                            td.style.color = '#7f8c8d';
+                            tr.appendChild(td);
+                            tableBody.appendChild(tr);
+                        } else {
+                            data.data.forEach(reservation => {
+                                const tr = document.createElement('tr');
+                                
+                                // Orden específico: Área, Tipo, Fecha, Hora Inicio, Hora Fin, Docente
+                                ['Área', 'Tipo', 'Fecha', 'Hora Inicio', 'Hora Fin', 'Docente'].forEach(key => {
+                                    const td = document.createElement('td');
+                                    td.textContent = reservation[key];
+                                    tr.appendChild(td);
+                                });
+                                
+                                tableBody.appendChild(tr);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        loadingMessage.style.display = 'none';
+                        errorMessage.style.display = 'block';
+                        errorMessage.textContent = 'Error al cargar los datos: ' + error.message;
+                        console.error('Error:', error);
+                    });
+            }
+            
+            // Cargar datos iniciales
+            loadReservations();
+            
+            // Configurar botón de actualización
+            refreshBtn.addEventListener('click', loadReservations);
+        });
+    </script>
+</body>
+</html>
