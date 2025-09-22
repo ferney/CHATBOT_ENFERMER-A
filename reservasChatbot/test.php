@@ -1,8 +1,8 @@
 <?php
 // Database connection details
-$servername = "localhost";
-$username = "root"; // Default XAMPP MySQL user
-$password = ""; // Default XAMPP MySQL password (empty)
+$servername = "mysql-db";
+$username = "chatbot_user"; // Default XAMPP MySQL user
+$password = "chatbot_pass_2024"; // Default XAMPP MySQL password (empty)
 $dbname = "laboratory_reservations"; // Replace with your database name
 // Create connection
 $mysqli = new mysqli($servername, $username, $password, $dbname);

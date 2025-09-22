@@ -1,5 +1,5 @@
 <?php
-header("Content-Type: application/json");
+header("Content-Type: application/json; charset=utf-8");
 
 // CORS Seguro
 $allowedOrigins = ["http://localhost", "https://tudominio.com"];
@@ -12,13 +12,16 @@ header("Access-Control-Allow-Methods: GET");
 header("Access-Control-Allow-Headers: Content-Type");
 
 // Configuración DB
-$servername = "localhost";
-$username = "root";
-$password = "";
+$servername = "mysql-db";
+$username = "chatbot_user";
+$password = "chatbot_pass_2024";
 $dbname = "laboratory_reservations";
 
 // Conectar
 $conn = new mysqli($servername, $username, $password, $dbname);
+
+// Configurar charset UTF-8
+$conn->set_charset("utf8");
 
 if ($conn->connect_error) {
     http_response_code(500);

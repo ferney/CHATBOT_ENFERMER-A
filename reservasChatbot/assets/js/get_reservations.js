@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
         tableHeader.innerHTML = '';
         tableBody.innerHTML = '';
         
-        fetch('http://localhost/reservasChatbot/get_reservations.php')
+        fetch('/backend/get_reservations.php')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Error en la respuesta del servidor');

@@ -2,7 +2,7 @@
 ini_set('display_errors', 0);
 error_reporting(0);
 
-header("Content-Type: application/json");
+header("Content-Type: application/json; charset=utf-8");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Credentials: true");
@@ -20,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 // Configuración DB
-$servername = "localhost";
-$username = "root";
-$password = "";
+$servername = "mysql-db";
+$username = "chatbot_user";
+$password = "chatbot_pass_2024";
 $dbname = "laboratory_reservations";
 
 try {
@@ -30,6 +30,9 @@ try {
     if ($mysqli->connect_error) {
         throw new Exception("Error de conexión a la base de datos");
     }
+
+    // Configurar charset UTF-8
+    $mysqli->set_charset("utf8");
 
     // Zona horaria Perú
     date_default_timezone_set('America/Bogota');

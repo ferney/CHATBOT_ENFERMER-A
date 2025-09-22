@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # Aplicación PHP
+  chatbot-app:
+    build: .
+    container_name: chatbot-enfermeria
+    ports:
+      - "80:80"
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html
+    depends_on:
+      - mysql-db
+    networks:
+      - chatbot-network
+    restart: unless-stopped
+
+  # Base de datos MySQL
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-enfermeria
+    environment:
+      MYSQL_ROOT_PASSWORD: chatbot_root_2024
+      MYSQL_DATABASE: laboratory_reservations
+      MYSQL_USER: chatbot_user
+      MYSQL_PASSWORD: chatbot_pass_2024
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - chatbot-network
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+
+  # phpMyAdmin (opcional, para administración)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin-enfermeria
+    environment:
+      PMA_HOST: mysql-db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: chatbot_root_2024
+      PMA_ARBITRARY: 1
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql-db
+    networks:
+      - chatbot-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  chatbot-network:
+    driver: bridge
