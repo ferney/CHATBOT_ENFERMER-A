@@ -44,10 +44,23 @@ docker compose logs --tail=20 chatbot-app
 echo ""
 echo "✅ Despliegue completado!"
 echo ""
-echo "📋 Servicios disponibles:"
-echo "   🌐 Aplicación: http://localhost"
-echo "   🗄️ phpMyAdmin: http://localhost:8080"
-echo "   📊 MySQL: localhost:3306"
+
+# Detectar si estamos en VPS o local
+if [ -f "/etc/hostname" ] && [ "$(cat /etc/hostname)" != "$(hostname)" ] 2>/dev/null; then
+    # Intentar obtener IP pública
+    VPS_IP=$(curl -s ifconfig.me 2>/dev/null || curl -s ipecho.net/plain 2>/dev/null || hostname -I | awk '{print $1}')
+    echo "📋 Servicios disponibles (VPS):"
+    echo "   🌐 Aplicación: http://$VPS_IP"
+    echo "   🗄️ phpMyAdmin: http://$VPS_IP:8080"
+    echo "   📊 MySQL: $VPS_IP:3306"
+    echo ""
+    echo "💡 Configura tu dominio para apuntar a: $VPS_IP"
+else
+    echo "📋 Servicios disponibles (Local):"
+    echo "   🌐 Aplicación: http://localhost"
+    echo "   🗄️ phpMyAdmin: http://localhost:8080"
+    echo "   📊 MySQL: localhost:3306"
+fi
 echo ""
 echo "🔑 Credenciales de base de datos:"
 echo "   Usuario root: root / chatbot_root_2024"
