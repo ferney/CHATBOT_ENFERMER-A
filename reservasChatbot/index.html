@@ -1,123 +1,44 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestión de Reservas de Laboratorios | Unisangil</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot de Reservas de Laboratorios</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="robots" href="robots.txt">
+  <meta name="robots" content="noindex, nofollow, max-image-preview:large">
 </head>
+
+
 <body>
-    <div class="container">
-        <h1>Sistema de Gestión de Reservas de Laboratorios</h1>
-        <div id="chatWindow" class="chat-window"></div>
-        <div class="input-area">
-            <input type="text" id="userInput" placeholder="Escribe tu mensaje aquí..." />
-            <button id="sendButton">Enviar</button>
-        </div>
-        <div class="suggestions">
-            <button class="suggestion-btn" data-query="Consultar disponibilidad">Consultar disponibilidad</button>
-            <button class="suggestion-btn" data-query="Reservar laboratorio">Reservar laboratorio</button>
-           <!-- <button class="suggestion-btn" data-query="Cancelar reserva">Cancelar reserva</button> -->
-        </div>
-       <!-- <div id="labSelection" class="lab-selection" style="display: none; margin-top: 10px;">
-            <label for="labDropdown">Selecciona un laboratorio:</label>
-            <select id="labDropdown">
-                <option value="infectología">Infectología</option>
-                <option value="pediatría">Pediatría</option>
-                <option value="cardiología">Cardiología</option>
-                <option value="cirugía">Cirugía</option>
-                <option value="emergencias">Emergencias</option>
-                <option value="obstetricia">Obstetricia</option>
-                <option value="neonatología">Neonatología</option>
-                <option value="quirófano">Quirófano</option>
-                <option value="terapia intensiva">Terapia Intensiva</option>
-                <option value="general">General</option>
-            </select>
-            <button id="checkAvailabilityButton">Ver horarios disponibles</button>
-        </div>-->
+  <div class="tabs-container">
+    <div class="tabs">
+      <button class="tab-button active" data-tab="chat">Chatbot</button>
+      <button class="tab-button" data-tab="reservations">Ver Reservas</button>
     </div>
-    <div id="reservationPopup" class="popup">
-        <div class="popup__content">
-            <h2 class="popup__title">Iniciar Reserva de Laboratorio</h2>
-            <p class="popup__description">Por favor, selecciona la fecha, hora y el laboratorio para comenzar el proceso de reserva.</p>
-            <div class="popup__form">
-                <div class="form-group">
-                    <label for="reservationDate" class="form-group__label">Fecha:</label>
-                    <input type="date" id="reservationDate" class="form-group__input" min="" onload="this.min=new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]">
-                </div>
-                <div class="form-group">
-                    <label for="reservationTime" class="form-group__label">Hora:</label>
-                    <select id="reservationTime" class="form-group__select">
-                        <option value="08:00">8:00 AM</option>
-                        <option value="10:00">10:00 AM</option>
-                        <option value="12:00">12:00 PM</option>
-                        <option value="14:00">2:00 PM</option>
-                        <option value="16:00">4:00 PM</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="reservationLab" class="form-group__label">Laboratorio:</label>
-                    <select id="reservationLab" class="form-group__select">
-                        <option value="infectología">Infectología</option>
-                        <option value="pediatría">Pediatría</option>
-                        <option value="cardiología">Cardiología</option>
-                        <option value="cirugía">Cirugía</option>
-                        <option value="emergencias">Emergencias</option>
-                        <option value="obstetricia">Obstetricia</option>
-                        <option value="neonatología">Neonatología</option>
-                        <option value="quirófano">Quirófano</option>
-                        <option value="terapia intensiva">Terapia Intensiva</option>
-                        <option value="general">General</option>
-                    </select>
-                </div>
-            </div>
-            <div class="popup__buttons">
-                <button id="startReservationBtn" class="popup__button popup__button--primary">Iniciar Reserva</button>
-                <button id="cancelReservationBtn" class="popup__button popup__button--secondary">Cancelar</button>
-            </div>
+
+    <div id="chat-tab" class="tab-content active">
+      <div class="chat-container">
+        <div class="chat-header">
+          <h2>Chatbot de Laboratorios</h2>
+          <p>Consulta disponibilidad o reserva un laboratorio de enfermería</p>
         </div>
-    </div>
-    <div id="availabilityPopup" class="popup">
-        <div class="popup__content">
-            <h2 class="popup__title">Consultar Disponibilidad</h2>
-            <p class="popup__description">Por favor, selecciona la fecha, hora y el laboratorio para consultar su disponibilidad.</p>
-            <div class="popup__form">
-                <div class="form-group">
-                    <label for="availabilityDate" class="form-group__label">Fecha:</label>
-                    <input type="date" id="availabilityDate" class="form-group__input" min="" onload="this.min=new Date().toISOString().split('T')[0]">
-                </div>
-                <div class="form-group">
-                    <label for="availabilityTime" class="form-group__label">Hora:</label>
-                    <select id="availabilityTime" class="form-group__select">
-                        <option value="08:00">8:00 AM</option>
-                        <option value="10:00">10:00 AM</option>
-                        <option value="12:00">12:00 PM</option>
-                        <option value="14:00">2:00 PM</option>
-                        <option value="16:00">4:00 PM</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="availabilityLab" class="form-group__label">Laboratorio:</label>
-                    <select id="availabilityLab" class="form-group__select">
-                        <option value="infectología">Infectología</option>
-                        <option value="pediatría">Pediatría</option>
-                        <option value="cardiología">Cardiología</option>
-                        <option value="cirugía">Cirugía</option>
-                        <option value="emergencias">Emergencias</option>
-                        <option value="obstetricia">Obstetricia</option>
-                        <option value="neonatología">Neonatología</option>
-                        <option value="quirófano">Quirófano</option>
-                        <option value="terapia intensiva">Terapia Intensiva</option>
-                        <option value="general">General</option>
-                    </select>
-                </div>
-            </div>
-            <div class="popup__buttons">
-                <button id="checkAvailabilityBtn" class="popup__button popup__button--primary">Consultar</button>
-                <button id="cancelAvailabilityBtn" class="popup__button popup__button--secondary">Cancelar</button>
-            </div>
+        <div class="chat-window" id="chatWindow"></div>
+        <div class="chat-input">
+          <input type="text" id="userInput" placeholder="Escribe tu mensaje..." autocomplete="off">
+          <button id="sendButton">Enviar</button>
         </div>
+      </div>
     </div>
-    <script src="chatbot.js"></script>
+
+    <div id="reservations-tab" class="tab-content">
+      <iframe id="reservationsFrame" src="reservations.html"></iframe>
+    </div>
+  </div>
+
+  <script src="assets/js/chatbot.js"></script>
+  <script src="assets/js/tab.js"></script>
 </body>
+
 </html>

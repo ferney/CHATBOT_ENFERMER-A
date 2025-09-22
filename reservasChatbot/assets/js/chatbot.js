@@ -1,6 +1,6 @@
 // chatbot.js
 // Configuración inicial
-const BASE_URL = "/reservasChatbotX2/";
+const BASE_URL = "/reservasChatbot/";
 const CURRENT_DATE = new Date();
 
 // Lista de laboratorios disponibles

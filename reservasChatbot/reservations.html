@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservas de Laboratorios</title>
+    <link rel="robots" href="robots.txt">
+    <link rel="stylesheet" href="assets/css/reservations.css">
+    <meta name="robots" content="noindex, nofollow, max-image-preview:large">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Reservas de Laboratorios</h1>
+            <p>Listado completo de reservas activas</p>
+        </div>
+
+        <div class="table-container">
+            <table id="reservationsTable">
+                <thead>
+                    <tr id="tableHeader"></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <div id="loadingMessage" class="loading">Cargando reservas...</div>
+            <div id="errorMessage" class="error" style="display:none;"></div>
+        </div>
+
+        <button id="refreshBtn" class="refresh-btn">Actualizar Lista</button>
+    </div>
+
+    <script src="assets/js/get_reservations.js"></script>
+</body>
+
+</html>
