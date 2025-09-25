@@ -42,6 +42,23 @@ CREATE TABLE reservations (
     INDEX idx_fecha (fecha)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tabla de reservas de laboratorios de enfermería';
 
+-- Crear tabla de estudiantes por reserva
+DROP TABLE IF EXISTS reservation_students;
+CREATE TABLE reservation_students (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    reservation_id INT NOT NULL COMMENT 'ID de la reserva',
+    student_name VARCHAR(255) NOT NULL COMMENT 'Nombre completo del estudiante',
+    student_id VARCHAR(50) NOT NULL COMMENT 'Número de identificación del estudiante',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación del registro',
+
+    -- Clave foránea
+    FOREIGN KEY (reservation_id) REFERENCES reservations(id) ON DELETE CASCADE,
+
+    -- Índices
+    INDEX idx_reservation_id (reservation_id),
+    INDEX idx_student_id (student_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tabla de estudiantes asociados a cada reserva';
+
 -- Insertar datos de prueba
 INSERT INTO reservations (
     laboratorio, fecha, hora_inicio, hora_fin,

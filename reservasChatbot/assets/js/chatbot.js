@@ -46,6 +46,8 @@ let reservationState = {
   practice_area: null,
   materials: null,
   num_students: null,
+  students: [],
+  currentStudentIndex: 0,
   displayDate: null,
   displayTime: null
 };
@@ -340,12 +342,36 @@ function handleReservationStep(message) {
       
     case "num_students":
       const num = parseInt(message);
-      if (isNaN(num) ){
+      if (isNaN(num) || num <= 0){
         addMessage("Por favor ingresa un número válido de estudiantes.", "bot-message");
         return;
       }
       reservationState.num_students = num;
-      completeReservation();
+      reservationState.students = [];
+      reservationState.currentStudentIndex = 0;
+      reservationState.step = "student_info";
+      addMessage(`Por favor ingresa el nombre e identificación del estudiante 1 separados por coma (Ejemplo: Juan Pérez, 12345678):`, "bot-message");
+      break;
+
+    case "student_info":
+      const studentData = message.split(',').map(part => part.trim());
+      if (studentData.length !== 2 || !studentData[0] || !studentData[1]) {
+        addMessage(`Por favor ingresa el nombre e identificación separados por coma (Ejemplo: Juan Pérez, 12345678):`, "bot-message");
+        return;
+      }
+
+      reservationState.students.push({
+        name: sanitizeText(studentData[0]),
+        id: sanitizeText(studentData[1])
+      });
+
+      reservationState.currentStudentIndex++;
+
+      if (reservationState.currentStudentIndex < reservationState.num_students) {
+        addMessage(`Por favor ingresa el nombre e identificación del estudiante ${reservationState.currentStudentIndex + 1} separados por coma (Ejemplo: María López, 87654321):`, "bot-message");
+      } else {
+        completeReservation();
+      }
       break;
   }
 }
@@ -360,12 +386,13 @@ async function completeReservation() {
         laboratorio: reservationState.lab,
         fecha: reservationState.date,
         hora_inicio: reservationState.startTime,
-        hora_fin: reservationState.endTime,                
+        hora_fin: reservationState.endTime,
         teacher_name: reservationState.teacher_name,
         practice_type: reservationState.practice_type,
         materials: reservationState.materials,
         num_students: reservationState.num_students,
-        practice_area: reservationState.practice_area
+        practice_area: reservationState.practice_area,
+        students: reservationState.students
       })
     });
     
@@ -409,6 +436,8 @@ async function completeReservation() {
       practice_type: null,
       materials: null,
       num_students: null,
+      students: [],
+      currentStudentIndex: 0,
       displayDate: null,
       displayTime: null
     };

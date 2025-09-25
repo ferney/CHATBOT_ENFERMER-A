@@ -133,9 +133,9 @@ try {
             break;
             
         case 'reserve':
-            $required = ['laboratorio', 'fecha', 'hora_inicio', 'hora_fin', 'teacher_name', 'practice_type', 'materials', 'num_students', 'practice_area'];
+            $required = ['laboratorio', 'fecha', 'hora_inicio', 'hora_fin', 'teacher_name', 'practice_type', 'materials', 'num_students', 'practice_area', 'students'];
             $missing = array_diff($required, array_keys($input));
-            
+
             if (!empty($missing)) {
                 throw new Exception("Faltan parámetros: " . implode(', ', $missing));
             }
@@ -149,6 +149,7 @@ try {
             $materials = $mysqli->real_escape_string($input['materials']);
             $num_students = (int)$input['num_students'];
             $practice_area = $mysqli->real_escape_string($input['practice_area']);
+            $students = $input['students']; // Array de estudiantes
             
             if (!in_array($practice_area, $valid_areas)) {
                 throw new Exception("Área de práctica no válida");
@@ -214,7 +215,24 @@ try {
             );
             
             if ($stmt_insert->execute()) {
-                echo json_encode(["success" => true, "message" => "Reserva registrada exitosamente"]);
+                $reservation_id = $mysqli->insert_id;
+
+                // Insertar estudiantes
+                if (!empty($students) && is_array($students)) {
+                    $stmt_student = $mysqli->prepare("INSERT INTO reservation_students (reservation_id, student_name, student_id) VALUES (?, ?, ?)");
+
+                    foreach ($students as $student) {
+                        if (isset($student['name']) && isset($student['id'])) {
+                            $student_name = $mysqli->real_escape_string($student['name']);
+                            $student_id = $mysqli->real_escape_string($student['id']);
+                            $stmt_student->bind_param("iss", $reservation_id, $student_name, $student_id);
+                            $stmt_student->execute();
+                        }
+                    }
+                    $stmt_student->close();
+                }
+
+                echo json_encode(["success" => true, "message" => "Reserva y estudiantes registrados exitosamente"]);
             } else {
                 throw new Exception("Error al registrar la reserva");
             }
