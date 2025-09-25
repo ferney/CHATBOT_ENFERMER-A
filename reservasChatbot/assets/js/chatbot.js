@@ -1,6 +1,6 @@
 // chatbot.js
 // Configuración inicial
-const BASE_URL = "/";
+const BASE_URL = "backend/";
 const CURRENT_DATE = new Date();
 
 // Lista de laboratorios disponibles
@@ -416,6 +416,10 @@ async function completeReservation() {
 }
 
 // Funciones auxiliares
+function sanitizeText(text) {
+  return text.trim().replace(/[<>]/g, '');
+}
+
 function addMessage(text, className) {
   const messageDiv = document.createElement("div");
   messageDiv.className = `message ${className}`;
