@@ -30,6 +30,71 @@
         <button id="refreshBtn" class="refresh-btn">Actualizar Lista</button>
     </div>
 
+    <!-- Modal para ver detalles completos -->
+    <div id="reservationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Detalles de la Reserva</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="detail-section">
+                    <h3>📋 Información General</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">Laboratorio:</span>
+                        <span class="detail-value" id="modalLaboratorio"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Área de Práctica:</span>
+                        <span class="detail-value" id="modalArea"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Tipo de Práctica:</span>
+                        <span class="detail-value" id="modalTipo"></span>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>📅 Fecha y Hora</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">Fecha:</span>
+                        <span class="detail-value" id="modalFecha"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Hora Inicio:</span>
+                        <span class="detail-value" id="modalHoraInicio"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Hora Fin:</span>
+                        <span class="detail-value" id="modalHoraFin"></span>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>👩‍🏫 Docente</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">Nombre:</span>
+                        <span class="detail-value" id="modalDocente"></span>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>🧪 Materiales</h3>
+                    <div class="detail-row">
+                        <span class="detail-value" id="modalMateriales"></span>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>👥 Estudiantes (<span id="modalNumEstudiantes"></span>)</h3>
+                    <div class="students-list" id="modalEstudiantes">
+                        <!-- Los estudiantes se cargarán aquí dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="assets/js/get_reservations.js"></script>
 </body>
 
