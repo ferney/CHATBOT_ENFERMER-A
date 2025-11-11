@@ -301,19 +301,3 @@ body {
   }
 }
 
-/* Desktop Large */
-@media (min-width: 1200px) {
-  .chat-container {
-    max-width: 700px;
-    height: 75vh;
-    max-height: 800px;
-  }
-
-  .chat-header h2 {
-    font-size: 1.8rem;
-  }
-
-  .chat-header p {
-    font-size: 1.1rem;
-  }
-}

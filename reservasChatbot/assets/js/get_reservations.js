@@ -5,11 +5,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const errorMessage = document.getElementById('errorMessage');
     const refreshBtn = document.getElementById('refreshBtn');
 
-    // Referencias del modal
     const modal = document.getElementById('reservationModal');
     const closeBtn = document.querySelector('.close');
 
-    // Función para abrir modal con detalles
     function openReservationModal(reservationId) {
         fetch(`backend/get_reservations.php?id=${reservationId}`)
             .then(response => {
@@ -19,7 +17,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
-                // Llenar datos del modal
                 document.getElementById('modalLaboratorio').textContent = data.laboratorio;
                 document.getElementById('modalArea').textContent = data.practice_area;
                 document.getElementById('modalTipo').textContent = data.practice_type;
@@ -30,29 +27,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('modalMateriales').textContent = data.materials || 'No especificados';
                 document.getElementById('modalNumEstudiantes').textContent = data.num_students;
 
-                // Llenar lista de estudiantes
                 const studentsContainer = document.getElementById('modalEstudiantes');
                 studentsContainer.innerHTML = '';
 
                 if (data.students && data.students.length > 0) {
                     data.students.forEach((student, index) => {
                         const studentDiv = document.createElement('div');
-                        studentDiv.className = 'student-item';
+                        studentDiv.className = 'flex items-start p-3 bg-gray-50 rounded-lg border-l-4 border-blue-500';
                         studentDiv.innerHTML = `
-                            <div class="student-number">${index + 1}.</div>
-                            <div class="student-info">
-                                <div class="student-name">${student.student_name}</div>
-                                <div class="student-id">ID: ${student.student_id}</div>
+                            <div class="font-bold text-blue-500 mr-3 min-w-[30px]">${index + 1}.</div>
+                            <div class="flex-1">
+                                <div class="font-semibold text-gray-800">${student.student_name}</div>
+                                <div class="text-sm text-gray-500">ID: ${student.student_id}</div>
                             </div>
                         `;
                         studentsContainer.appendChild(studentDiv);
                     });
                 } else {
-                    studentsContainer.innerHTML = '<p class="no-students">No hay estudiantes registrados</p>';
+                    studentsContainer.innerHTML = '<p class="text-center text-gray-500 italic py-4">No hay estudiantes registrados</p>';
                 }
 
-                // Mostrar modal
-                modal.style.display = 'block';
+                modal.classList.add('show');
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -60,12 +55,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Función para cerrar modal
     function closeModal() {
-        modal.style.display = 'none';
+        modal.classList.remove('show');
     }
 
-    // Event listeners del modal
     closeBtn.addEventListener('click', closeModal);
 
     window.addEventListener('click', function(event) {
@@ -74,11 +67,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Función para cargar datos
     function loadReservations() {
-        // Mostrar carga y ocultar errores
-        loadingMessage.style.display = 'block';
-        errorMessage.style.display = 'none';
+        loadingMessage.classList.remove('hidden');
+        errorMessage.classList.add('hidden');
         tableHeader.innerHTML = '';
         tableBody.innerHTML = '';
 
@@ -90,41 +81,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
-                // Ocultar mensaje de carga
-                loadingMessage.style.display = 'none';
+                loadingMessage.classList.add('hidden');
 
-                // Crear encabezados de tabla
                 data.columns.forEach(column => {
                     const th = document.createElement('th');
+                    th.className = 'text-left px-4 py-3 font-semibold text-sm';
                     th.textContent = column;
                     tableHeader.appendChild(th);
                 });
 
-                // Crear filas de datos
                 if (data.data.length === 0) {
                     const tr = document.createElement('tr');
                     const td = document.createElement('td');
                     td.colSpan = data.columns.length;
+                    td.className = 'text-center py-8 px-4 text-gray-500 text-base';
                     td.textContent = 'No hay reservas registradas';
-                    td.style.textAlign = 'center';
-                    td.style.padding = '20px';
-                    td.style.color = '#7f8c8d';
                     tr.appendChild(td);
                     tableBody.appendChild(tr);
                 } else {
                     data.data.forEach(reservation => {
                         const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-blue-50 transition-colors duration-150';
 
-                        // Orden específico: Área, Tipo, Fecha, Hora Inicio, Hora Fin, Docente
                         ['Área', 'Tipo', 'Fecha', 'Hora Inicio', 'Hora Fin', 'Docente'].forEach(key => {
                             const td = document.createElement('td');
+                            td.className = 'px-4 py-3 text-gray-800 text-sm';
                             td.textContent = reservation[key];
                             tr.appendChild(td);
                         });
 
-                        // Agregar columna de acciones
                         const actionsTd = document.createElement('td');
-                        actionsTd.innerHTML = `<button class="view-btn" onclick="openReservationModal(${reservation.id})">Ver</button>`;
+                        actionsTd.className = 'px-4 py-3 text-sm';
+                        actionsTd.innerHTML = `<button class="bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-150 text-sm" onclick="openReservationModal(${reservation.id})">Ver</button>`;
                         tr.appendChild(actionsTd);
 
                         tableBody.appendChild(tr);
@@ -132,19 +120,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(error => {
-                loadingMessage.style.display = 'none';
-                errorMessage.style.display = 'block';
+                loadingMessage.classList.add('hidden');
+                errorMessage.classList.remove('hidden');
                 errorMessage.textContent = 'Error al cargar los datos: ' + error.message;
                 console.error('Error:', error);
             });
     }
 
-    // Hacer la función global para el onclick
     window.openReservationModal = openReservationModal;
 
-    // Cargar datos iniciales
     loadReservations();
 
-    // Configurar botón de actualización
     refreshBtn.addEventListener('click', loadReservations);
 });

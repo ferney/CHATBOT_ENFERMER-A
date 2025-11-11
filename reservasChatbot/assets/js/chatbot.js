@@ -1,9 +1,5 @@
-// chatbot.js
-// Configuración inicial
 const BASE_URL = "backend/";
 const CURRENT_DATE = new Date();
-
-// Lista de laboratorios disponibles
 const LABORATORIOS = [
   "Valoración del estado de salud",
   "Fisiopatología 1",
@@ -22,39 +18,36 @@ const LABORATORIOS = [
   "Promoción de la salud infantil y del adolescente"
 ];
 
-// Lista de áreas de práctica
 const PRACTICE_AREAS = [
-  "cuidados básicos", "valoración", "heridas y quirúrgica", "pediatría",
-  "ginecobstetricia", "debriefing", "reanimación"
+  { id: "cuidados básicos", name: "Cuidados Básicos", icon: "🏥" },
+  { id: "valoración", name: "Valoración", icon: "📋" },
+  { id: "heridas y quirúrgica", name: "Heridas y Quirúrgica", icon: "🩹" },
+  { id: "pediatría", name: "Pediatría", icon: "👶" },
+  { id: "ginecobstetricia", name: "Ginecobstetricia", icon: "🤰" },
+  { id: "debriefing", name: "Debriefing", icon: "💬" },
+  { id: "reanimación", name: "Reanimación", icon: "🚑" }
 ];
 
-// Elementos del DOM
+const HORARIOS = [
+  { inicio: "08:00", fin: "10:00", display: "8:00 AM - 10:00 AM" },
+  { inicio: "10:00", fin: "12:00", display: "10:00 AM - 12:00 AM" },
+  { inicio: "14:00", fin: "16:00", display: "2:00 PM - 4:00 PM" },
+  { inicio: "16:00", fin: "18:00", display: "4:00 PM - 6:00 PM" },
+/*   { inicio: "15:00", fin: "17:00", display: "3:00 PM - 5:00 PM" },
+  { inicio: "17:00", fin: "19:00", display: "5:00 PM - 7:00 PM" } */
+];
+
 const chatWindow = document.getElementById("chatWindow");
 const userInput = document.getElementById("userInput");
 const sendButton = document.getElementById("sendButton");
 
-// Estado de la reserva
-let reservationState = {
-  step: "none",
-  lab: null,
-  date: null,
-  startTime: null,
-  endTime: null,
-  dateObj: null,
-  teacher_name: null,
-  practice_type: null,
-  practice_area: null,
-  materials: null,
-  num_students: null,
-  students: [],
-  currentStudentIndex: 0,
-  displayDate: null,
-  displayTime: null
+let conversationState = {
+  mode: "inicio",
+  step: null,
+  data: {}
 };
 
-// Inicializar el chatbot
 function initChatbot() {
-  // Verificar que los elementos existen
   if (!chatWindow || !userInput || !sendButton) {
     console.error("Error: Elementos del DOM no encontrados");
     return;
@@ -64,401 +57,527 @@ function initChatbot() {
   userInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") handleUserInput();
   });
-  
-  // SOLO UNA VEZ AL INICIO
+
   showWelcomeMessage();
 }
 
 function showWelcomeMessage() {
-  const welcomeMessage = `
-    ¡Hola! Bienvenido(a)<br><br>
-    🔹 Para consultar disponibilidad:<br>
-    Ejemplo: <strong>DISPONIBLE, ASIGNATURA, FECHA, HORA, AMBIENTE</strong><br>
-    <strong>DISPONIBLE, VALORACIÓN DEL ESTADO DE SALUD, 5 DE JUNIO, 8 A 10, VALORACIÓN</strong><br><br>
-    🔹 Para hacer una reserva:<br>
-    Ejemplo:<br> 
-    <strong>RESERVAR, CUIDADO DE ENFERMERÍA AL NIÑO Y AL ADOLESCENTE, 6 DE JUNIO, 9 A 11, PEDIATRÍA</strong>`;
-  
-  addMessage(welcomeMessage, "bot-message");
+  addBotMessage(`
+    <div class="space-y-3">
+      <p class="text-lg font-semibold">¡Bienvenido al Sistema de Reservas! 👋</p>
+      <p>Soy tu asistente virtual y estoy aquí para ayudarte a:</p>
+      <ul class="list-disc list-inside space-y-1 ml-2">
+        <li>Consultar disponibilidad de laboratorios</li>
+        <li>Realizar reservas de forma rápida y sencilla</li>
+      </ul>
+      <p class="font-medium mt-4">¿Qué deseas hacer?</p>
+    </div>
+  `);
+
+  showInitialOptions();
 }
 
-// NUEVA FUNCIÓN DE AYUDA
-function showHelpMessage() {
-  const helpMessage = `
-    Por favor ingresa un comando válido:<br><br>
-    🔹 <strong>DISPONIBLE, [Asignatura], [Fecha], [Hora Inicio a Hora Fin], [Área]</strong><br>
-    🔹 <strong>RESERVAR, [Asignatura], [Fecha], [Hora Inicio a Hora Fin], [Área]</strong><br><br>
-    Ejemplos:<br>
-    <strong>DISPONIBLE, Valoración del estado de salud, 5 de junio, 8 a 10, valoración</strong><br>
-    <strong>RESERVAR, Cuidado de enfermería al niño, 6 de junio, 9 a 11, pediatría</strong>`;
-  
-  addMessage(helpMessage, "bot-message");
+function showInitialOptions() {
+  addButtonGroup([
+    { text: "🔍 Consultar Disponibilidad", action: "consultar", variant: "primary" },
+    { text: "📅 Hacer una Reserva", action: "reservar", variant: "success" }
+  ]);
 }
 
-// Manejar entrada del usuario
 function handleUserInput() {
   const message = userInput.value.trim();
   if (!message) return;
 
-  addMessage(message, "user-message");
+  addUserMessage(message);
   userInput.value = "";
-  
-  if (reservationState.step !== "none") {
-    handleReservationStep(message);
-  } else {
-    processUserMessage(message);
-  }
-  
+
+  processConversation(message);
   scrollToBottom();
 }
 
-// Procesar mensaje del usuario
-function processUserMessage(message) {
-  // Convertir a mayúsculas solo para comandos
-  const upperMessage = message.toUpperCase();
-  
-  if (upperMessage.startsWith("DISPONIBLE,")) {
-    handleAvailabilityQuery(message);
-  } else if (upperMessage.startsWith("RESERVAR,")) {
-    initiateReservation(message);
-  } else {
-    // USAR AYUDA EN VEZ DE BIENVENIDA
-    showHelpMessage();
+function processConversation(message) {
+  const state = conversationState;
+
+  if (state.step === "teacher_name") {
+    state.data.teacher_name = sanitizeText(message);
+    state.step = "practice_type";
+    addBotMessage("¿Qué tipo de práctica vas a realizar? (Ejemplo: Práctica de toma de signos vitales)");
   }
-}
-// Extraer detalles del mensaje
-function extractDetails(message) {
-  const parts = message.split(',').map(part => part.trim());
-  
-  if (parts.length < 5) return { valid: false };
-  
-  const action = parts[0].toLowerCase();
-  
-  // Buscar laboratorio sin distinguir mayúsculas/minúsculas
-  const lab = LABORATORIOS.find(l => 
-    message.toLowerCase().includes(l.toLowerCase())
-  );
-  
-  if (!lab) return { valid: false };
-  
-  // Buscar área de práctica
-  const areaPart = parts[4].toLowerCase();
-  const practice_area = PRACTICE_AREAS.find(a => 
-    areaPart.includes(a)
-  );
-  
-  if (!practice_area) return { valid: false };
-  
-  // Parsear fecha (formato flexible)
-  const datePart = parts[2].toLowerCase();
-  const dateMatch = datePart.match(/(\d{1,2})\s*de\s*([a-zñ]+)(?:\s*de\s*(\d{4}))?/);
-  
-  if (!dateMatch) return { valid: false };
-  
-  const day = dateMatch[1].padStart(2, '0');
-  const monthName = dateMatch[2];
-  const year = dateMatch[3] || CURRENT_DATE.getFullYear();
-  
-  const months = {
-    'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04', 
-    'mayo': '05', 'junio': '06', 'julio': '07', 'agosto': '08',
-    'septiembre': '09', 'octubre': '10', 'noviembre': '11', 'diciembre': '12'
-  };
-  
-  const month = months[monthName];
-  if (!month) return { valid: false };
-  
-  const date = `${year}-${month}-${day}`;
-  const dateObj = new Date(`${year}-${month}-${day}`);
-  
-  // Parsear horario (formato flexible)
-  const timePart = parts[3].toLowerCase();
-  const timeMatch = timePart.match(/(\d{1,2})\s*(?:a|hasta|-)\s*(\d{1,2})/);
-  
-  if (!timeMatch) return { valid: false };
-  
-  const startHour = timeMatch[1].padStart(2, '0');
-  const endHour = timeMatch[2].padStart(2, '0');
-  const startTime = `${startHour}:00`;
-  const endTime = `${endHour}:00`;
-  
-  // Verificar si la fecha/hora es pasada
-  const now = new Date();
-  const reservationDate = new Date(
-    parseInt(year), 
-    parseInt(month) - 1, 
-    parseInt(day),
-    parseInt(startHour)
-  );
-  
-  const isPast = reservationDate < now;
-  
-  return {
-    valid: true,
-    action,
-    lab,
-    date,
-    dateObj,
-    startTime,
-    endTime,
-    practice_area,
-    displayDate: `${day} DE ${monthName.toUpperCase()}${dateMatch[3] ? ' DE ' + dateMatch[3] : ''}`,
-    displayTime: `${startHour} A ${endHour}`,
-    isPast
-  };
+  else if (state.step === "practice_type") {
+    state.data.practice_type = sanitizeText(message);
+    state.step = "materials";
+    addBotMessage("¿Qué materiales necesitas? Sepáralos por comas. (Ejemplo: Estetoscopio, tensiómetro, termómetro)");
+  }
+  else if (state.step === "materials") {
+    state.data.materials = sanitizeText(message);
+    state.step = "num_students";
+    addBotMessage("¿Cuántos estudiantes van a participar en la práctica?");
+  }
+  else if (state.step === "num_students") {
+    const num = parseInt(message);
+    if (isNaN(num) || num <= 0) {
+      addBotMessage("⚠️ Por favor ingresa un número válido de estudiantes (mayor a 0).");
+      return;
+    }
+    state.data.num_students = num;
+    state.data.students = [];
+    state.data.currentStudentIndex = 0;
+    state.step = "student_info";
+    addBotMessage(`Perfecto. Ahora necesito los datos de los ${num} estudiantes.<br><br>👤 <strong>Estudiante 1 de ${num}</strong><br>Ingresa: Nombre completo, Cédula<br><em>Ejemplo: Juan Pérez García, 1234567890</em>`);
+  }
+  else if (state.step === "student_info") {
+    const studentData = message.split(',').map(part => part.trim());
+    if (studentData.length !== 2 || !studentData[0] || !studentData[1]) {
+      addBotMessage("⚠️ Formato incorrecto. Por favor ingresa:<br><strong>Nombre completo, Cédula</strong><br>Ejemplo: Juan Pérez García, 1234567890");
+      return;
+    }
+
+    state.data.students.push({
+      name: sanitizeText(studentData[0]),
+      id: sanitizeText(studentData[1])
+    });
+
+    state.data.currentStudentIndex++;
+
+    if (state.data.currentStudentIndex < state.data.num_students) {
+      const nextNum = state.data.currentStudentIndex + 1;
+      addBotMessage(`✅ Estudiante registrado.<br><br>👤 <strong>Estudiante ${nextNum} de ${state.data.num_students}</strong><br>Ingresa: Nombre completo, Cédula`);
+    } else {
+      showReservationSummary();
+    }
+  }
 }
 
-// Consultar disponibilidad
-async function handleAvailabilityQuery(message) {
-  const details = extractDetails(message);
-  
-  if (!details.valid) {
-    addMessage("Formato incorrecto. Por favor sigue el ejemplo mostrado.", "bot-message");
-    return;
+function handleButtonClick(action, data = null) {
+  console.log("🔘 Botón clickeado:", action, data);
+
+  const state = conversationState;
+
+  if (action === "consultar") {
+    state.mode = "consultar";
+    state.step = "select_lab";
+    state.data = {};
+    addBotMessage("Excelente, vamos a consultar la disponibilidad. 📋<br><br>Primero, selecciona el <strong>laboratorio</strong> que necesitas:");
+    showLaboratorioButtons();
   }
-  
-  // Validar fecha/hora no anterior
-  if (details.isPast) {
-    addMessage("❌ <strong>Error:</strong> No puedes consultar disponibilidad en fechas/horas pasadas", "bot-message");
-    return;
+  else if (action === "reservar") {
+    // Si ya tenemos datos de una consulta previa, los conservamos
+    if (state.data.laboratorio && state.data.practice_area && state.data.fecha && state.data.hora_inicio) {
+      // Ya tenemos toda la info, vamos directo a pedir datos del docente
+      state.mode = "reservar";
+      state.step = "teacher_name";
+      addBotMessage(`
+        <div class="space-y-2">
+          <p class="text-lg font-semibold">¡Perfecto! Vamos a proceder con la reserva. 📝</p>
+          <p>Ya tengo los datos del horario, ahora necesito información adicional.</p>
+          <p class="font-medium">👨‍🏫 ¿Cuál es el nombre del docente a cargo?</p>
+        </div>
+      `);
+    } else {
+      // No hay datos previos, empezar desde cero
+      state.mode = "reservar";
+      state.step = "select_lab";
+      state.data = {};
+      addBotMessage("¡Perfecto! Vamos a hacer tu reserva paso a paso. 📝<br><br>Primero, selecciona el <strong>laboratorio</strong> que necesitas:");
+      showLaboratorioButtons();
+    }
   }
+  else if (action === "select_lab") {
+    state.data.laboratorio = data;
+    state.step = "select_area";
+    addBotMessage(`Has seleccionado: <strong>${data}</strong> ✅<br><br>Ahora selecciona el <strong>área de práctica</strong>:`);
+    showAreaButtons();
+  }
+  else if (action === "select_area") {
+    state.data.practice_area = data;
+    state.step = "select_date";
+    const areaObj = PRACTICE_AREAS.find(a => a.id === data);
+    addBotMessage(`${areaObj.icon} Área seleccionada: <strong>${areaObj.name}</strong> ✅<br><br>¿Para qué <strong>fecha</strong> necesitas el laboratorio?`);
+    showDatePicker();
+  }
+  else if (action === "select_date") {
+    state.data.fecha = data;
+    state.step = "select_time";
+    addBotMessage(`📅 Fecha seleccionada: <strong>${formatDisplayDate(data)}</strong> ✅<br><br>Selecciona el <strong>horario</strong>:`);
+    showTimeButtons();
+  }
+  else if (action === "select_time") {
+    const [inicio, fin] = data.split('|');
+    state.data.hora_inicio = inicio;
+    state.data.hora_fin = fin;
+    state.step = "checking";
+
+    const horario = HORARIOS.find(h => h.inicio === inicio && h.fin === fin);
+    addBotMessage(`🕐 Horario seleccionado: <strong>${horario.display}</strong> ✅<br><br>⏳ Verificando disponibilidad...`);
+
+    checkAvailability();
+  }
+  else if (action === "confirm_reservation") {
+    submitReservation();
+  }
+  else if (action === "cancel") {
+    state.mode = "inicio";
+    state.step = null;
+    state.data = {};
+    addBotMessage("❌ Operación cancelada. ¿Qué deseas hacer ahora?");
+    showInitialOptions();
+  }
+  else if (action === "restart") {
+    state.mode = "inicio";
+    state.step = null;
+    state.data = {};
+    addBotMessage("🔄 Reiniciando... ¿Qué deseas hacer?");
+    showInitialOptions();
+  }
+}
+
+async function checkAvailability() {
+  const state = conversationState;
 
   try {
     const response = await fetch(`${BASE_URL}backend.php?action=check_availability`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        laboratorio: details.lab,
-        fecha: details.date,
-        hora_inicio: details.startTime,
-        hora_fin: details.endTime,
-        practice_area: details.practice_area
+        laboratorio: state.data.laboratorio,
+        fecha: state.data.fecha,
+        hora_inicio: state.data.hora_inicio,
+        hora_fin: state.data.hora_fin,
+        practice_area: state.data.practice_area
       })
     });
-    
-    if (!response.ok) throw new Error("Error en la respuesta del servidor");
-    
+
     const data = await response.json();
-    
+
     if (data.error) {
-      addMessage(`Error: ${data.error}`, "bot-message");
+      addBotMessage(`❌ <strong>Error:</strong> ${data.error}`);
+      addButtonGroup([{ text: "🔄 Intentar de nuevo", action: "restart", variant: "secondary" }]);
       return;
     }
-    
+
     if (data.available) {
-      addMessage(
-        `✅ El ambiente de <strong>${details.practice_area.toUpperCase()}</strong> está disponible el <strong>${details.displayDate}</strong> en el horario de <strong>${details.displayTime}</strong><br><br>` +
-        `Para reservar copia y pega:<br>` +
-        `<strong>RESERVAR, ${details.lab.toUpperCase()}, ${details.displayDate}, ${details.displayTime}, ${details.practice_area.toUpperCase()}</strong>`,
-        "bot-message"
-      );
-    } else {
-      if (data.reason === "area") {
-        addMessage(
-          `⚠️ El ambiente de <strong>${details.practice_area.toUpperCase()}</strong> NO está disponible el <strong>${details.displayDate}</strong> en el horario de <strong>${details.displayTime}</strong><br>` +
-          `Reserva existente en laboratorio: <strong>${data.reserved_lab || 'No especificado'}</strong><br>` +
-          `A nombre de: <strong>${data.reserved_by || 'Usuario no disponible'}</strong><br><br>` +
-          `Puedes intentar con otro horario.`,
-          "bot-message"
-        );
+      const areaObj = PRACTICE_AREAS.find(a => a.id === state.data.practice_area);
+      const horario = HORARIOS.find(h => h.inicio === state.data.hora_inicio);
+
+      if (state.mode === "consultar") {
+        addBotMessage(`
+          <div class="space-y-2">
+            <p class="text-lg font-semibold text-green-600">✅ ¡Disponible!</p>
+            <div class="bg-green-50 border border-green-200 rounded-lg p-3 space-y-1 text-sm">
+              <p><strong>Laboratorio:</strong> ${state.data.laboratorio}</p>
+              <p><strong>Área:</strong> ${areaObj.icon} ${areaObj.name}</p>
+              <p><strong>Fecha:</strong> ${formatDisplayDate(state.data.fecha)}</p>
+              <p><strong>Horario:</strong> ${horario.display}</p>
+            </div>
+            <p class="text-sm">¿Deseas hacer la reserva ahora?</p>
+          </div>
+        `);
+        addButtonGroup([
+          { text: "📅 Sí, reservar ahora", action: "reservar", variant: "success" },
+          { text: "🔍 Consultar otro horario", action: "restart", variant: "secondary" }
+        ]);
       } else {
-        addMessage(
-          `⚠️ El laboratorio <strong>${details.lab.toUpperCase()}</strong> NO está disponible para <strong>${details.practice_area.toUpperCase()}</strong> el <strong>${details.displayDate}</strong> de <strong>${details.displayTime}</strong><br>` +
-          `Reserva existente para área: <strong>${data.reserved_area || 'No especificada'}</strong><br>` +
-          `A nombre de: <strong>${data.reserved_by || 'Usuario no disponible'}</strong><br><br>` +
-          `Puedes intentar con otro laboratorio u horario.`,
-          "bot-message"
-        );
+        addBotMessage(`
+          <div class="space-y-2">
+            <p class="text-lg font-semibold text-green-600">✅ ¡Disponible!</p>
+            <p>Perfecto, el laboratorio está disponible. Ahora necesito algunos datos adicionales.</p>
+            <p class="font-medium">👨‍🏫 ¿Cuál es el nombre del docente a cargo?</p>
+          </div>
+        `);
+        state.step = "teacher_name";
       }
+    } else {
+      const areaObj = PRACTICE_AREAS.find(a => a.id === state.data.practice_area);
+      const horario = HORARIOS.find(h => h.inicio === state.data.hora_inicio);
+
+      let mensaje = `
+        <div class="space-y-2">
+          <p class="text-lg font-semibold text-red-600">❌ No Disponible</p>
+          <div class="bg-red-50 border border-red-200 rounded-lg p-3 space-y-1 text-sm">
+            <p><strong>Laboratorio:</strong> ${state.data.laboratorio}</p>
+            <p><strong>Área:</strong> ${areaObj.icon} ${areaObj.name}</p>
+            <p><strong>Fecha:</strong> ${formatDisplayDate(state.data.fecha)}</p>
+            <p><strong>Horario:</strong> ${horario.display}</p>
+          </div>
+      `;
+
+      if (data.reason === "area") {
+        mensaje += `<p class="text-sm">Ya existe una reserva para el área de <strong>${areaObj.name}</strong> en el laboratorio <strong>${data.reserved_lab}</strong> a nombre de <strong>${data.reserved_by}</strong>.</p>`;
+      } else {
+        mensaje += `<p class="text-sm">El laboratorio ya está reservado para el área <strong>${data.reserved_area}</strong> a nombre de <strong>${data.reserved_by}</strong>.</p>`;
+      }
+
+      mensaje += `</div>`;
+
+      addBotMessage(mensaje);
+      addButtonGroup([
+        { text: "🔄 Probar otro horario", action: "restart", variant: "secondary" },
+        { text: "❌ Cancelar", action: "cancel", variant: "danger" }
+      ]);
     }
   } catch (error) {
-    addMessage(
-      "❌ Error al conectar con el servidor. Por favor intenta más tarde.",
-      "bot-message"
-    );
-    console.error("Error en handleAvailabilityQuery:", error);
+    console.error("Error:", error);
+    addBotMessage("❌ Error al conectar con el servidor. Por favor intenta más tarde.");
+    addButtonGroup([{ text: "🔄 Intentar de nuevo", action: "restart", variant: "secondary" }]);
   }
 }
 
-// Iniciar proceso de reserva
-function initiateReservation(message) {
-  const details = extractDetails(message);
-  
-  if (!details.valid) {
-    addMessage("Formato incorrecto. Por favor sigue el ejemplo mostrado.", "bot-message");
-    return;
-  }
-  
-  // Validar fecha/hora no anterior
-  if (details.isPast) {
-    addMessage("❌ <strong>Error:</strong> No puedes reservar en fechas/horas pasadas", "bot-message");
-    return;
-  }
-  
-  reservationState = {
-    step: "teacher_name",
-    lab: details.lab,
-    date: details.date,
-    startTime: details.startTime,
-    endTime: details.endTime,
-    dateObj: details.dateObj,
-    practice_area: details.practice_area,
-    displayDate: details.displayDate,
-    displayTime: details.displayTime,
-    teacher_name: null,
-    practice_type: null,
-    materials: null,
-    num_students: null
-  };
-  
-  addMessage(
-    `Iniciando reserva para ambiente de <strong>${details.practice_area.toUpperCase()}</strong><br>` +
-    `Fecha: <strong>${details.displayDate}</strong> Horario: <strong>${details.displayTime}</strong><br>` +
-    "Por favor ingresa el nombre del docente a cargo:",
-    "bot-message"
-  );
+function showReservationSummary() {
+  const state = conversationState;
+  const areaObj = PRACTICE_AREAS.find(a => a.id === state.data.practice_area);
+  const horario = HORARIOS.find(h => h.inicio === state.data.hora_inicio);
+
+  let studentsHtml = state.data.students.map((s, i) =>
+    `<div class="flex items-start space-x-2">
+      <span class="font-semibold">${i + 1}.</span>
+      <div>
+        <p class="font-medium">${s.name}</p>
+        <p class="text-xs text-gray-500">CC: ${s.id}</p>
+      </div>
+    </div>`
+  ).join('');
+
+  addBotMessage(`
+    <div class="space-y-3">
+      <p class="text-lg font-semibold text-blue-600">📋 Resumen de tu Reserva</p>
+      <p>Por favor verifica que toda la información sea correcta:</p>
+
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2 text-sm">
+        <div><strong>🏥 Laboratorio:</strong> ${state.data.laboratorio}</div>
+        <div><strong>${areaObj.icon} Área:</strong> ${areaObj.name}</div>
+        <div><strong>📅 Fecha:</strong> ${formatDisplayDate(state.data.fecha)}</div>
+        <div><strong>🕐 Horario:</strong> ${horario.display}</div>
+        <div><strong>👨‍🏫 Docente:</strong> ${state.data.teacher_name}</div>
+        <div><strong>📝 Tipo de práctica:</strong> ${state.data.practice_type}</div>
+        <div><strong>🧪 Materiales:</strong> ${state.data.materials}</div>
+        <div><strong>👥 Estudiantes (${state.data.num_students}):</strong></div>
+        <div class="ml-4 space-y-1">
+          ${studentsHtml}
+        </div>
+      </div>
+
+      <p class="font-medium">¿Confirmas la reserva?</p>
+    </div>
+  `);
+
+  addButtonGroup([
+    { text: "✅ Confirmar Reserva", action: "confirm_reservation", variant: "success" },
+    { text: "❌ Cancelar", action: "cancel", variant: "danger" }
+  ]);
+
+  conversationState.step = "confirming";
 }
 
-// Manejar pasos de reserva
-function handleReservationStep(message) {
-  switch (reservationState.step) {
-    case "teacher_name":
-      reservationState.teacher_name = sanitizeText(message);
-      reservationState.step = "practice_type";
-      addMessage("Ingresa el tipo de práctica a realizar:", "bot-message");
-      break;
-      
-    case "practice_type":
-      reservationState.practice_type = sanitizeText(message);
-      reservationState.step = "materials";
-      addMessage("Lista los materiales requeridos (separados por comas):", "bot-message");
-      break;
-      
-    case "materials":
-      reservationState.materials = sanitizeText(message);
-      reservationState.step = "num_students";
-      addMessage("Ingresa el número de estudiantes que participarán:", "bot-message");
-      break;
-      
-    case "num_students":
-      const num = parseInt(message);
-      if (isNaN(num) || num <= 0){
-        addMessage("Por favor ingresa un número válido de estudiantes.", "bot-message");
-        return;
-      }
-      reservationState.num_students = num;
-      reservationState.students = [];
-      reservationState.currentStudentIndex = 0;
-      reservationState.step = "student_info";
-      addMessage(`Por favor ingresa el nombre e identificación del estudiante 1 separados por coma (Ejemplo: Juan Pérez, 12345678):`, "bot-message");
-      break;
+async function submitReservation() {
+  const state = conversationState;
 
-    case "student_info":
-      const studentData = message.split(',').map(part => part.trim());
-      if (studentData.length !== 2 || !studentData[0] || !studentData[1]) {
-        addMessage(`Por favor ingresa el nombre e identificación separados por coma (Ejemplo: Juan Pérez, 12345678):`, "bot-message");
-        return;
-      }
+  addBotMessage("⏳ Procesando tu reserva...");
 
-      reservationState.students.push({
-        name: sanitizeText(studentData[0]),
-        id: sanitizeText(studentData[1])
-      });
-
-      reservationState.currentStudentIndex++;
-
-      if (reservationState.currentStudentIndex < reservationState.num_students) {
-        addMessage(`Por favor ingresa el nombre e identificación del estudiante ${reservationState.currentStudentIndex + 1} separados por coma (Ejemplo: María López, 87654321):`, "bot-message");
-      } else {
-        completeReservation();
-      }
-      break;
-  }
-}
-
-// Completar reserva
-async function completeReservation() {
   try {
     const response = await fetch(`${BASE_URL}backend.php?action=reserve`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        laboratorio: reservationState.lab,
-        fecha: reservationState.date,
-        hora_inicio: reservationState.startTime,
-        hora_fin: reservationState.endTime,
-        teacher_name: reservationState.teacher_name,
-        practice_type: reservationState.practice_type,
-        materials: reservationState.materials,
-        num_students: reservationState.num_students,
-        practice_area: reservationState.practice_area,
-        students: reservationState.students
+        laboratorio: state.data.laboratorio,
+        fecha: state.data.fecha,
+        hora_inicio: state.data.hora_inicio,
+        hora_fin: state.data.hora_fin,
+        teacher_name: state.data.teacher_name,
+        practice_type: state.data.practice_type,
+        materials: state.data.materials,
+        num_students: state.data.num_students,
+        practice_area: state.data.practice_area,
+        students: state.data.students
       })
     });
-    
+
     const data = await response.json();
-    
+
     if (data.success) {
-      addMessage(
-        `🎉 <strong>¡Reserva confirmada!</strong><br><br>` +
-        `<strong>Área:</strong> ${reservationState.practice_area.toUpperCase()}<br>` +
-        `<strong>Asignatura:</strong> ${reservationState.lab}<br>` +
-        `<strong>Fecha:</strong> ${reservationState.displayDate}<br>` +
-        `<strong>Horario:</strong> ${reservationState.displayTime}<br>` +
-        `<strong>Docente:</strong> ${reservationState.teacher_name}<br>` +
-        `<strong>Tipo de práctica:</strong> ${reservationState.practice_type}<br>` +
-        `<strong>Materiales:</strong> ${reservationState.materials}<br>` +
-        `<strong>N° Estudiantes:</strong> ${reservationState.num_students}`,
-        "bot-message"
-      );
+      const areaObj = PRACTICE_AREAS.find(a => a.id === state.data.practice_area);
+      const horario = HORARIOS.find(h => h.inicio === state.data.hora_inicio);
+
+      addBotMessage(`
+        <div class="space-y-3">
+          <p class="text-xl font-bold text-green-600">🎉 ¡Reserva Confirmada!</p>
+          <p>Tu reserva ha sido registrada exitosamente.</p>
+
+          <div class="bg-green-50 border border-green-300 rounded-lg p-4 space-y-2 text-sm">
+            <div><strong>🏥 Laboratorio:</strong> ${state.data.laboratorio}</div>
+            <div><strong>${areaObj.icon} Área:</strong> ${areaObj.name}</div>
+            <div><strong>📅 Fecha:</strong> ${formatDisplayDate(state.data.fecha)}</div>
+            <div><strong>🕐 Horario:</strong> ${horario.display}</div>
+            <div><strong>👨‍🏫 Docente:</strong> ${state.data.teacher_name}</div>
+            <div><strong>👥 Estudiantes:</strong> ${state.data.num_students}</div>
+          </div>
+
+          <p class="text-sm text-gray-600">Recuerda llegar 10 minutos antes del horario programado.</p>
+        </div>
+      `);
+
+      addButtonGroup([
+        { text: "📅 Hacer otra reserva", action: "restart", variant: "primary" }
+      ]);
+
+      state.mode = "inicio";
+      state.step = null;
+      state.data = {};
     } else {
-      addMessage(
-        `❌ <strong>Error al reservar:</strong> ${data.message || "No se pudo completar la reserva"}`,
-        "bot-message"
-      );
+      addBotMessage(`❌ <strong>Error:</strong> ${data.message || "No se pudo completar la reserva"}`);
+      addButtonGroup([
+        { text: "🔄 Intentar de nuevo", action: "restart", variant: "secondary" },
+        { text: "❌ Cancelar", action: "cancel", variant: "danger" }
+      ]);
     }
   } catch (error) {
-    addMessage(
-      "❌ Error al conectar con el servidor. Por favor intenta más tarde.",
-      "bot-message"
-    );
-    console.error("Error en completeReservation:", error);
-  } finally {
-    reservationState = {
-      step: "none",
-      lab: null,
-      date: null,
-      startTime: null,
-      endTime: null,
-      dateObj: null,
-      practice_area: null,
-      teacher_name: null,
-      practice_type: null,
-      materials: null,
-      num_students: null,
-      students: [],
-      currentStudentIndex: 0,
-      displayDate: null,
-      displayTime: null
-    };
+    console.error("Error:", error);
+    addBotMessage("❌ Error al conectar con el servidor. Por favor intenta más tarde.");
+    addButtonGroup([{ text: "🔄 Intentar de nuevo", action: "restart", variant: "secondary" }]);
   }
 }
 
-// Funciones auxiliares
-function sanitizeText(text) {
-  return text.trim().replace(/[<>]/g, '');
+
+function showLaboratorioButtons() {
+  const buttons = LABORATORIOS.map(lab => ({
+    text: lab,
+    action: "select_lab",
+    data: lab,
+    variant: "outline"
+  }));
+
+  addButtonGroup(buttons, 2);
 }
 
-function addMessage(text, className) {
+function showAreaButtons() {
+  const buttons = PRACTICE_AREAS.map(area => ({
+    text: `${area.icon} ${area.name}`,
+    action: "select_area",
+    data: area.id,
+    variant: "outline"
+  }));
+
+  addButtonGroup(buttons, 2);
+}
+
+function showDatePicker() {
+  const today = new Date();
+  const dates = [];
+
+  for (let i = 0; i < 30; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+
+    if (date.getDay() !== 0 && date.getDay() !== 6) {
+      const dateStr = date.toISOString().split('T')[0];
+      dates.push({
+        text: formatDisplayDate(dateStr),
+        action: "select_date",
+        data: dateStr,
+        variant: "outline"
+      });
+    }
+
+    if (dates.length >= 10) break;
+  }
+
+  addButtonGroup(dates, 2);
+}
+
+function showTimeButtons() {
+  const buttons = HORARIOS.map(horario => ({
+    text: horario.display,
+    action: "select_time",
+    data: `${horario.inicio}|${horario.fin}`,
+    variant: "outline"
+  }));
+
+  addButtonGroup(buttons, 2);
+}
+
+function addButtonGroup(buttons, columns = 1) {
+  const containerDiv = document.createElement("div");
+  containerDiv.className = `grid grid-cols-1 ${columns === 2 ? 'md:grid-cols-2' : ''} gap-2 max-w-[85%] md:max-w-[75%] animate-fadeIn my-4`;
+
+  buttons.forEach(btn => {
+    const button = document.createElement("button");
+
+    const variants = {
+      primary: "bg-gradient-to-r from-primary-600 to-purple-600 text-white hover:from-primary-700 hover:to-purple-700",
+      success: "bg-green-600 text-white hover:bg-green-700",
+      danger: "bg-red-600 text-white hover:bg-red-700",
+      secondary: "bg-gray-600 text-white hover:bg-gray-700",
+      outline: "bg-white border-2 border-primary-300 text-primary-700 hover:bg-primary-50 hover:border-primary-500"
+    };
+
+    button.className = `px-4 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md text-left ${variants[btn.variant || 'outline']}`;
+    button.textContent = btn.text;
+    button.onclick = () => handleButtonClick(btn.action, btn.data);
+
+    containerDiv.appendChild(button);
+  });
+
+  chatWindow.appendChild(containerDiv);
+  scrollToElement(containerDiv);
+}
+
+function addBotMessage(html) {
   const messageDiv = document.createElement("div");
-  messageDiv.className = `message ${className}`;
-  messageDiv.innerHTML = text;
+  messageDiv.className = "max-w-[85%] md:max-w-[75%] animate-fadeIn";
+  messageDiv.innerHTML = `
+    <div class="flex items-start space-x-3">
+      <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold shadow-lg">
+        🤖
+      </div>
+      <div class="flex-1 bg-white border border-gray-200 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm">
+        <div class="text-gray-800 text-sm leading-relaxed">${html}</div>
+        <div class="text-xs text-gray-400 mt-1">${new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})}</div>
+      </div>
+    </div>
+  `;
   chatWindow.appendChild(messageDiv);
+  scrollToElement(messageDiv);
+}
+
+function addUserMessage(text) {
+  const messageDiv = document.createElement("div");
+  messageDiv.className = "max-w-[85%] md:max-w-[75%] ml-auto animate-fadeIn";
+  messageDiv.innerHTML = `
+    <div class="flex items-start space-x-3 justify-end">
+      <div class="flex-1 bg-gradient-to-r from-primary-600 to-purple-600 rounded-2xl rounded-tr-none px-4 py-3 shadow-lg">
+        <div class="text-white text-sm leading-relaxed">${sanitizeText(text)}</div>
+        <div class="text-xs text-primary-100 mt-1 text-right">${new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})}</div>
+      </div>
+      <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-sm font-bold shadow-lg">
+        👤
+      </div>
+    </div>
+  `;
+  chatWindow.appendChild(messageDiv);
+  scrollToBottom();
+}
+
+function sanitizeText(text) {
+  return text.trim().replace(/[<>]/g, '');
 }
 
 function scrollToBottom() {
   chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
-// Inicializar al cargar la página
+function scrollToElement(element) {
+  // Hace scroll para que el elemento esté visible en la parte superior del chat
+  // con un pequeño margen de 20px
+  setTimeout(() => {
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function formatDisplayDate(dateStr) {
+  const date = new Date(dateStr + 'T00:00:00');
+  const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+  return `${days[date.getDay()]}, ${date.getDate()} de ${months[date.getMonth()]} de ${date.getFullYear()}`;
+}
+
 document.addEventListener("DOMContentLoaded", initChatbot);
