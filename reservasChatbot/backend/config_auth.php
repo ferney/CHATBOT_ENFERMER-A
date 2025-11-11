@@ -18,9 +18,10 @@ if (session_status() === PHP_SESSION_NONE) {
 
 define('SESSION_TIMEOUT', 1800);
 
+/* !!!! Pendiente cambiar contraseñas quemadas por variables de entorno !!!!! */
 $ADMIN_USERS = [
-    'admin' => password_hash('admin123', PASSWORD_BCRYPT), 
-    'unisangil' => password_hash('enfermeria2024', PASSWORD_BCRYPT),
+    'admin' => password_hash('@dminSemillero202$', PASSWORD_BCRYPT), 
+    'unisangil' => password_hash('Enf3rmeria202$', PASSWORD_BCRYPT),
 ];
 
 /**
