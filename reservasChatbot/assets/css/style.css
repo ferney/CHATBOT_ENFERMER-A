@@ -6,34 +6,51 @@
   font-family: Arial, sans-serif;
 }
 
+/* Body styling */
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
 /* Main container styling */
 .chat-container {
+  width: 100%;
   max-width: 600px;
-  margin: 20px auto;
+  margin: 0 auto;
   border: 1px solid #ccc;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   height: 80vh;
+  max-height: 700px;
+  min-height: 500px;
+  background-color: white;
 }
 
 /* Header styling */
 .chat-header {
-  background-color: #007bff;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
   color: white;
-  padding: 15px;
+  padding: 20px;
   text-align: center;
 }
 
 .chat-header h2 {
-  font-size: 1.5em;
+  font-size: 1.5rem;
+  margin-bottom: 5px;
+  font-weight: 600;
 }
 
 .chat-header p {
-  font-size: 0.9em;
-  margin-top: 5px;
+  font-size: 1rem;
+  opacity: 0.95;
+  margin-top: 8px;
 }
 
 /* Chat window styling */
@@ -42,394 +59,261 @@
   padding: 15px;
   overflow-y: auto;
   background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Scrollbar personalizado */
+.chat-window::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-window::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.chat-window::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.chat-window::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 /* Message styling */
 .message {
   margin: 10px 0;
-  padding: 10px 15px;
+  padding: 12px 16px;
   border-radius: 10px;
   max-width: 80%;
-  line-height: 1.4;
+  line-height: 1.5;
   word-wrap: break-word;
+  animation: fadeIn 0.3s ease-in;
 }
 
 .bot-message {
   background-color: #e6f3ff;
-  margin-right: 10%;
+  border: 1px solid #b3d9ff;
+  align-self: flex-start;
+  margin-right: auto;
 }
 
 .user-message {
   background-color: #007bff;
   color: white;
-  margin-left: 10%;
   align-self: flex-end;
+  margin-left: auto;
 }
 
 /* Input area styling */
 .chat-input {
   display: flex;
-  border-top: 1px solid #ccc;
-  padding: 10px;
-  background-color: #fff;
-}
-
-#userInput {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 1em;
-  outline: none;
-}
-
-#userInput:focus {
-  border-color: #007bff;
-}
-
-#sendButton {
-  margin-left: 10px;
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1em;
-  transition: background-color 0.3s;
-}
-
-#sendButton:hover {
-  background-color: #0056b3;
-}
-
-/* Suggestions styling */
-.suggestions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 10px;
-  border-top: 1px solid #ccc;
-  background-color: #fff;
-  justify-content: center;
-}
-
-.suggestion-btn {
-  padding: 8px 15px;
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 0.9em;
-  transition: background-color 0.3s, border-color 0.3s;
-}
-
-.suggestion-btn:hover {
-  background-color: #e6f3ff;
-  border-color: #007bff;
-}
-
-.suggestion-btn:active {
-  background-color: #d0e6ff;
-}
-
-/* Animation for new messages */
-.message {
-  animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Responsive design for small screens */
-@media (max-width: 600px) {
-  .chat-container {
-    margin: 10px;
-    height: 90vh;
-  }
-
-  .chat-header h2 {
-    font-size: 1.2em;
-  }
-
-  .chat-header p {
-    font-size: 0.8em;
-  }
-
-  .message {
-    max-width: 90%;
-  }
-
-  .suggestion-btn {
-    font-size: 0.8em;
-    padding: 6px 12px;
-  }
-}
-
-/* Adjustments to prevent landscape view */
-@media (orientation: landscape) {
-  .chat-container {
-    display: none;
-  }
-}
-
-.tabs-container {
-  max-width: 900px;
-  margin: 20px auto;
-  padding: 20px;
-}
-
-.tabs {
-  display: flex;
-  margin-bottom: 0;
-  border-bottom: 2px solid #3498db;
-}
-
-.tab-button {
-  padding: 14px 30px;
-  background-color: #f8f9fa;
-  border: none;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  color: #2c3e50;
-  position: relative;
-  margin-right: 5px;
-  border-radius: 8px 8px 0 0;
-}
-
-.tab-button.active {
-  background-color: #3498db;
-  color: white;
-}
-
-.tab-button.active::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: #3498db;
-}
-
-.tab-button:hover:not(.active) {
-  background-color: #e8f4fc;
-}
-
-.tab-content {
-  display: none;
-  border: 1px solid #ddd;
-  border-top: none;
-  border-radius: 0 0 8px 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  background-color: white;
-}
-
-.tab-content.active {
-  display: block;
-  animation: fadeIn 0.4s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* CHATBOT - ESTILOS BASE PARA TODOS LOS DISPOSITIVOS */
-.chat-container {
-  display: flex;
-  flex-direction: column;
-  height: 70vh;
-  max-height: 700px;
-  min-height: 500px;
-}
-
-.chat-header {
-  background-color: #3498db;
-  color: white;
-  padding: 15px 20px;
-}
-
-.chat-header h2 {
-  font-size: 1.5rem;
-  margin-bottom: 5px;
-}
-
-.chat-header p {
-  font-size: 1rem;
-  opacity: 0.9;
-}
-
-.chat-window {
-  flex: 1;
+  border-top: 1px solid #ddd;
   padding: 15px;
-  overflow-y: auto;
-  background-color: #f9f9f9;
-}
-
-.chat-input {
-  display: flex;
-  padding: 12px;
-  background-color: white;
-  border-top: 1px solid #e0e0e0;
+  background-color: #fff;
+  gap: 10px;
 }
 
 #userInput {
   flex: 1;
   padding: 12px 15px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
   font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s;
 }
 
 #userInput:focus {
   border-color: #3498db;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 #sendButton {
-  margin-left: 10px;
-  padding: 12px 25px;
-  background-color: #3498db;
+  padding: 12px 30px;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 1rem;
   font-weight: 600;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
 }
 
 #sendButton:hover {
-  background-color: #2980b9;
+  background: linear-gradient(135deg, #2980b9 0%, #21618c 100%);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+  transform: translateY(-1px);
 }
 
-/* IFRAME RESERVAS */
-#reservationsFrame {
-  width: 100%;
-  height: 75vh;
-  max-height: 750px;
-  min-height: 500px;
-  border: none;
-  border-radius: 0 0 8px 8px;
+#sendButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(52, 152, 219, 0.3);
 }
 
-/* MEDIA QUERIES - RESPONSIVE */
-/* Tablet */
+/* Animation for new messages */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design - Tablet */
 @media (max-width: 992px) {
-  .tabs-container {
+  .chat-container {
+    height: 75vh;
+    max-width: 550px;
+  }
+
+  .chat-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .chat-header p {
+    font-size: 0.95rem;
+  }
+}
+
+/* Responsive design - Mobile Large */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  .chat-container {
+    height: 85vh;
+    max-width: 100%;
+    min-height: 400px;
+  }
+
+  .chat-header {
     padding: 15px;
   }
-  
-  .tab-button {
-    padding: 12px 20px;
-    font-size: 15px;
-  }
-  
-  .chat-container {
-    height: 65vh;
-  }
-  
-  #reservationsFrame {
-    height: 70vh;
-  }
-}
 
-/* Móvil Grande */
-@media (max-width: 768px) {
-  .tabs-container {
-    padding: 10px;
-    margin: 10px;
-  }
-  
-  .tab-button {
-    padding: 12px 15px;
-    font-size: 14px;
-  }
-  
   .chat-header h2 {
     font-size: 1.3rem;
   }
-  
+
   .chat-header p {
     font-size: 0.9rem;
   }
-  
-  .chat-container {
-    height: 60vh;
-    min-height: 400px;
-  }
-  
-  #reservationsFrame {
-    height: 65vh;
-    min-height: 400px;
-  }
-}
 
-/* Móvil Pequeño */
-@media (max-width: 480px) {
-  .tabs-container {
-    padding: 8px;
+  .message {
+    max-width: 85%;
   }
-  
-  .tabs {
-    flex-wrap: wrap;
+
+  .chat-input {
+    padding: 12px;
   }
-  
-  .tab-button {
-    padding: 10px 12px;
-    font-size: 13px;
-    margin-bottom: 5px;
-    flex: 1;
-    text-align: center;
+
+  #userInput {
+    font-size: 0.95rem;
   }
-  
-  .chat-container {
-    height: 55vh;
-    min-height: 300px;
-  }
-  
-  #reservationsFrame {
-    height: 60vh;
-    min-height: 300px;
-  }
-  
+
   #sendButton {
     padding: 12px 20px;
+    font-size: 0.95rem;
   }
 }
 
-/* Orientación Horizontal */
-@media (orientation: landscape) {
+/* Responsive design - Mobile Small */
+@media (max-width: 480px) {
+  body {
+    padding: 5px;
+  }
+
   .chat-container {
-    height: 80vh;
-    min-height: auto;
+    height: 90vh;
+    min-height: 350px;
+    border-radius: 8px;
   }
-  
-  #reservationsFrame {
-    height: 85vh;
-    min-height: auto;
+
+  .chat-header {
+    padding: 12px;
+  }
+
+  .chat-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .chat-header p {
+    font-size: 0.85rem;
+  }
+
+  .chat-window {
+    padding: 10px;
+  }
+
+  .message {
+    max-width: 90%;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .chat-input {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  #userInput {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  #sendButton {
+    padding: 10px 16px;
+    font-size: 0.9rem;
   }
 }
 
-/* Desktop Grande */
+/* Landscape orientation adjustments */
+@media (orientation: landscape) and (max-height: 600px) {
+  body {
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .chat-container {
+    height: 90vh;
+    min-height: auto;
+    max-height: none;
+  }
+
+  .chat-header {
+    padding: 12px;
+  }
+
+  .chat-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .chat-header p {
+    font-size: 0.85rem;
+  }
+}
+
+/* Desktop Large */
 @media (min-width: 1200px) {
-  .tabs-container {
-    max-width: 1100px;
-  }
-  
   .chat-container {
+    max-width: 700px;
     height: 75vh;
     max-height: 800px;
   }
-  
-  #reservationsFrame {
-    height: 80vh;
-    max-height: 850px;
+
+  .chat-header h2 {
+    font-size: 1.8rem;
+  }
+
+  .chat-header p {
+    font-size: 1.1rem;
   }
 }

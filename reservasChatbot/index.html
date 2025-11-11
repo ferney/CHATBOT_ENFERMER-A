@@ -10,35 +10,20 @@
   <meta name="robots" content="noindex, nofollow, max-image-preview:large">
 </head>
 
-
 <body>
-  <div class="tabs-container">
-    <div class="tabs">
-      <button class="tab-button active" data-tab="chat">Chatbot</button>
-      <button class="tab-button" data-tab="reservations">Ver Reservas</button>
+  <div class="chat-container">
+    <div class="chat-header">
+      <h2>Chatbot de Laboratorios</h2>
+      <p>Consulta disponibilidad o reserva un laboratorio de enfermería</p>
     </div>
-
-    <div id="chat-tab" class="tab-content active">
-      <div class="chat-container">
-        <div class="chat-header">
-          <h2>Chatbot de Laboratorios</h2>
-          <p>Consulta disponibilidad o reserva un laboratorio de enfermería</p>
-        </div>
-        <div class="chat-window" id="chatWindow"></div>
-        <div class="chat-input">
-          <input type="text" id="userInput" placeholder="Escribe tu mensaje..." autocomplete="off">
-          <button id="sendButton">Enviar</button>
-        </div>
-      </div>
-    </div>
-
-    <div id="reservations-tab" class="tab-content">
-      <iframe id="reservationsFrame" src="reservations.html"></iframe>
+    <div class="chat-window" id="chatWindow"></div>
+    <div class="chat-input">
+      <input type="text" id="userInput" placeholder="Escribe tu mensaje..." autocomplete="off">
+      <button id="sendButton">Enviar</button>
     </div>
   </div>
 
   <script src="assets/js/chatbot.js"></script>
-  <script src="assets/js/tab.js"></script>
 </body>
 
 </html>

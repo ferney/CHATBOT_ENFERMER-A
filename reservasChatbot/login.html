@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Panel de Administración</title>
+    <link rel="robots" href="robots.txt">
+    <meta name="robots" content="noindex, nofollow, max-image-preview:large">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #333;
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #aaa;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .login-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-error {
+            background-color: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+
+        .alert-success {
+            background-color: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .back-link a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #666;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 20px;
+            }
+
+            .login-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .login-logo {
+                width: 70px;
+                height: 70px;
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-logo">🔐</div>
+        <div class="login-header">
+            <h1>Panel de Administración</h1>
+            <p>Reservas de Laboratorios de Enfermería</p>
+        </div>
+
+        <div id="alertMessage" class="alert"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Usuario</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Ingresa tu usuario"
+                    required
+                    autocomplete="username"
+                    autofocus
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Ingresa tu contraseña"
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <button type="submit" id="loginButton" class="login-button">
+                Iniciar Sesión
+            </button>
+
+            <div id="loadingMessage" class="loading">
+                Verificando credenciales...
+            </div>
+        </form>
+
+        <div class="back-link">
+            <a href="index.html">← Volver al Chatbot</a>
+        </div>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const alertMessage = document.getElementById('alertMessage');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const loginButton = document.getElementById('loginButton');
+
+        function showAlert(message, type = 'error') {
+            alertMessage.textContent = message;
+            alertMessage.className = `alert alert-${type} show`;
+
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertMessage.classList.remove('show');
+                }, 2000);
+            }
+        }
+
+        function hideAlert() {
+            alertMessage.classList.remove('show');
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAlert();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showAlert('Por favor completa todos los campos', 'error');
+                return;
+            }
+
+            // Deshabilitar botón y mostrar loading
+            loginButton.disabled = true;
+            loadingMessage.classList.add('show');
+
+            try {
+                console.log('🔑 Intentando login para usuario:', username);
+                const response = await fetch('backend/auth.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'same-origin',  // Importante: incluir cookies
+                    body: JSON.stringify({
+                        action: 'login',
+                        username: username,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+                console.log('📊 Respuesta de auth:', data);
+
+                if (data.success) {
+                    console.log('✅ Login exitoso, sesión creada:', data.debug);
+                    showAlert('¡Acceso concedido! Redirigiendo...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'reservas.html';
+                    }, 1000);
+                } else {
+                    showAlert(data.message || 'Usuario o contraseña incorrectos', 'error');
+                    loginButton.disabled = false;
+                    loadingMessage.classList.remove('show');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Error al conectar con el servidor. Intenta nuevamente.', 'error');
+                loginButton.disabled = false;
+                loadingMessage.classList.remove('show');
+            }
+        });
+
+        // Limpiar alerta al escribir
+        document.getElementById('username').addEventListener('input', hideAlert);
+        document.getElementById('password').addEventListener('input', hideAlert);
+    </script>
+</body>
+</html>
